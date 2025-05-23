@@ -1,3 +1,4 @@
+```
 from lightgbm import LGBMClassifier
 from sklearn.base import BaseEstimator, ClassifierMixin
 
@@ -39,3 +40,5 @@ boruta_selector.fit(X, y)
 # Features selecionadas
 selected = boruta_selector.support_
 print("Features selecionadas:", selected)
+
+```
