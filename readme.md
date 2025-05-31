@@ -1,4 +1,4 @@
-🧠 MyNotes.txt
+🧠 MyNotes
 
 Este repositório reúne minhas anotações pessoais, resumos técnicos e aprendizados práticos.
 
