@@ -15,3 +15,5 @@ O objetivo é consolidar, revisar e compartilhar conhecimentos de forma organiza
 | `model`    | Treinamento ou tuning de modelo                        |
 | `perf`     | Mudança de código focada em melhorar performance       |
 | `refactor` | Refatoração de código existente (sem mudar funcionalidade) |
+
+teste
