@@ -22,63 +22,47 @@ O objetivo é consolidar, revisar e compartilhar conhecimentos de forma organiza
 
 # 📘 Trilha de Estudos: Machine Learning para Risco de Crédito (com base no ESL)
 
-> Baseado no livro _The Elements of Statistical Learning_ com aplicações em inadimplência, scorecards e IFRS 9.
-
----
-
-## 🧱 Módulo 1 – Fundamentos Estatísticos e Pré-processamento
+## 🧱 Fundamentos Estatísticos e Pré-processamento
 
 - [ ] Reforçar conceitos de probabilidade e inferência com Casella & Berger
 - [ ] Realizar análise exploratória (EDA) em bases como HMEQ
 - [ ] Identificar e tratar outliers e valores ausentes
 - [ ] Aplicar técnicas de normalização, binning supervisionado e WOE
 
----
-
-## 🌲 Módulo 2 – Métodos Lineares para Classificação
+## 🌲 Métodos Lineares para Classificação
 
 - [ ] Estudar Regressão Logística (Cap. 4 do ESL)
 - [ ] Explorar regularização Lasso e Ridge (Cap. 3)
 - [ ] Aplicar Análise Discriminante Linear (LDA)
 - [ ] Implementar um scorecard com `scorecardpy` ou `statsmodels`
 
----
-
-## 🌳 Módulo 3 – Métodos Não Lineares e Árvores
+## 🌳 Métodos Não Lineares e Árvores
 
 - [ ] Entender árvores de decisão e suas divisões (Cap. 9)
 - [ ] Aplicar Random Forest e Bagging (Cap. 15)
 - [ ] Implementar modelos com Boosting (Cap. 10) usando LightGBM
 - [ ] Comparar performance entre Logit e Gradient Boosting com HMEQ
 
----
-
-## ⛓ Módulo 4 – Modelos de Tempo e Sobrevivência
+## ⛓ Modelos de Tempo e Sobrevivência
 
 - [ ] Estudar Hazard Models (discreto e contínuo)
 - [ ] Aplicar o modelo de Cox com `lifelines`
 - [ ] Trabalhar com covariáveis dependentes do tempo
 - [ ] Implementar modelagem de PD com sobrevivência (ex: `pycox`)
 
----
-
-## 🧪 Módulo 5 – Validação, Performance e Dados Desbalanceados
+## 🧪 Validação, Performance e Dados Desbalanceados
 
 - [ ] Avaliar modelos com AUC, KS, Lift, Precision/Recall
 - [ ] Tratar dados desbalanceados com SMOTE e undersampling
 - [ ] Calcular e monitorar o PSI para estabilidade de variáveis
-- [ ] Implementar validação cruzada e holdout temporal
+- [ ] Implementar validação cruzada e holdout temporal4
 
----
-
-## 🧠 Módulo 6 – Modelos Avançados e Interpretação
+## 🧠 Modelos Avançados e Interpretação
 
 - [ ] Explorar SVM e Kernel Methods (Cap. 12)
 - [ ] Estudar técnicas de explicabilidade (SHAP, LIME)
 - [ ] Trabalhar com modelos de múltiplas saídas (Cap. 11)
 - [ ] Estimar PD, LGD e EAD em tarefas multi-target
-
----
 
 ## 📦 Recursos Complementares
 
