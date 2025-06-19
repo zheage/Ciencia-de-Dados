@@ -98,19 +98,19 @@ Checklist com os principais tópicos que um cientista de dados deve dominar para
 ## 🔄 Transformações Avançadas e Performance
 - [ ] Lazy evaluation: como funciona e por que importa  
 - [ ] Particionamento e `repartition()` vs. `coalesce()`  
-- [ ] Broadcast joins e quando utilizá-los  
+- [x] Broadcast joins e quando utilizá-los  
 - [ ] Caching com `cache()` e `persist()`  
 - [ ] UDFs e Pandas UDFs (User Defined Functions)  
 - [ ] Leitura eficiente com `.option()`, `.schema()`, `.mode()`  
 
 ## 🧱 Estrutura de Projetos com PySpark
-- [ ] Organização de scripts em pipelines  
+- [x] Organização de scripts em pipelines  
 - [ ] Modularização de jobs com funções e classes  
 - [ ] Parâmetros via `argparse` ou arquivos `.yaml/.json`  
 - [ ] Integração com Git e versionamento de código Spark  
 
 ## 🔁 PySpark SQL
-- [ ] Uso de SQL diretamente com `spark.sql()`  
+- [x] Uso de SQL diretamente com `spark.sql()`  
 - [ ] Registro de views temporárias e permanentes  
 - [ ] Conversão entre SQL e API DataFrame  
 
