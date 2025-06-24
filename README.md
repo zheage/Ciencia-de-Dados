@@ -111,7 +111,7 @@ Checklist com os principais tópicos que um cientista de dados deve dominar para
 
 ## 🔁 PySpark SQL
 - [x] Uso de SQL diretamente com `spark.sql()`  
-- [ ] Registro de views temporárias e permanentes  
+- [x] Registro de views temporárias e permanentes  
 - [ ] Conversão entre SQL e API DataFrame  
 
 ## 📈 Machine Learning com MLlib
@@ -136,6 +136,59 @@ Checklist com os principais tópicos que um cientista de dados deve dominar para
 - [ ] Gerenciamento de recursos: executores, memória, partições  
 - [ ] Debugging em cluster (logs e UI do Spark)  
 - [ ] Análise de DAGs no Spark UI  
+
+---
+
+## ✅ Roadmap SQL para Cientistas de Dados
+
+
+## 📘 Fundamentos de SQL
+- [x] **SELECT, FROM, WHERE** – Sintaxe básica para consultar dados de uma tabela.
+- [ ] **Operadores (IN, LIKE, BETWEEN, IS NULL)** – Filtros comuns para valores, padrões e faixas.
+- [x] **ORDER BY, LIMIT** – Ordenação de resultados e limitação de registros retornados.
+- [x] **Aliases (`AS`)** – Dar nomes alternativos a colunas ou tabelas para facilitar a leitura.
+
+## 🧮 Agregações e Agrupamentos
+- [x] **COUNT, SUM, AVG, MIN, MAX** – Funções agregadoras para sumarizar dados.
+- [x] **GROUP BY** – Agrupar registros por uma ou mais colunas.
+- [ ] **HAVING** – Filtrar resultados após o `GROUP BY`.
+- [x] **DISTINCT** – Remover duplicatas nos resultados.
+
+## 🔗 Joins (Junções entre tabelas)
+- [x] **INNER JOIN** – Retorna registros com correspondência nas duas tabelas.
+- [x] **LEFT JOIN / RIGHT JOIN** – Inclui todos os registros da tabela da esquerda/direita.
+- [ ] **FULL OUTER JOIN** – Inclui todos os registros de ambas as tabelas, com ou sem correspondência.
+- [ ] **CROSS JOIN** – Produto cartesiano entre duas tabelas.
+- [ ] **SELF JOIN** – Tabela unida com ela mesma para relações hierárquicas ou comparações.
+
+## 🧱 Subqueries e CTEs
+- [ ] **Subqueries em SELECT, FROM, WHERE** – Consultas aninhadas para filtragem ou cálculo.
+- [ ] **CTE com `WITH`** – Nomear subqueries reutilizáveis, melhorando legibilidade.
+- [ ] **CTE Recursiva** – Para hierarquias (ex: organogramas, categorias encadeadas).
+
+## 🪟 Window Functions (Funções de Janela)
+- [ ] **ROW_NUMBER, RANK, DENSE_RANK** – Ordenar e numerar registros dentro de partições.
+- [ ] **LAG, LEAD** – Acessar valores anteriores ou posteriores sem auto-joins.
+- [ ] **FIRST_VALUE, LAST_VALUE** – Retornar o primeiro ou último valor da partição.
+- [ ] **OVER (PARTITION BY ... ORDER BY ...)** – Definir o escopo e ordem das janelas.
+
+## 🧹 Manipulação e Limpeza de Dados
+- [ ] **CASE WHEN** – Expressões condicionais tipo `if/else` para criar colunas derivadas.
+- [ ] **COALESCE, NULLIF** – Substituição e comparação com valores nulos.
+- [ ] **CAST, CONVERT** – Conversão entre tipos (string, inteiro, data etc.).
+- [ ] **TRIM, SUBSTRING, UPPER, LOWER** – Funções de texto e limpeza de strings.
+
+## 🗂️ Modelagem e Performance
+- [ ] **Normalização e Desnormalização** – Estruturar dados para consistência e/ou performance.
+- [ ] **CREATE TABLE, tipos de dados** – Definir esquemas e estruturas de tabelas.
+- [ ] **Índices e Chaves** – Melhorar performance de busca e integridade referencial.
+- [ ] **EXPLAIN PLAN / ANALYZE** – Diagnosticar e otimizar performance de queries.
+
+## 🧠 SQL Avançado
+- [ ] **PIVOT / UNPIVOT** – Transformar linhas em colunas e vice-versa.
+- [ ] **UDFs (User Defined Functions)** – Criar funções customizadas em SQL ou integradas com Python.
+- [ ] **Views e Materialized Views** – Criar camadas reutilizáveis de consulta.
+- [ ] **Tabelas Temporárias e Persistentes** – Gerenciar escopo e duração de dados intermediários.
 
 ---
 
@@ -195,3 +248,103 @@ Uma lista com os principais tópicos de POO que um cientista de dados deve domin
 - [ ] Introdução a design patterns (Factory, Strategy, etc.)  
 - [ ] Decoradores de classe e `@classmethod`, `@staticmethod`  
 - [ ] Testes com classes: usando `pytest` e `unittest`
+
+---
+
+# 📚 Roadmap: Sistema Bancário e Ativos Financeiros
+
+## 🏦 Fundamentos do Sistema Financeiro Nacional (SFN)
+- [ ] Estrutura do SFN: CMN, BACEN, CVM, SUSEP, Previc
+- [ ] Instituições financeiras: bancos comerciais, múltiplos, cooperativas, financeiras
+- [ ] Papel do BACEN, CVM, SUSEP
+- [ ] Sistema de Pagamentos Brasileiro (SPB)
+
+## 💰 Tipos de Ativos Financeiros
+- [ ] Renda Fixa: CDB, LCI, LCA, Tesouro Direto, Debêntures
+- [ ] Renda Variável: Ações, BDRs, ETFs, FIIs
+- [ ] Derivativos: opções, futuros, swaps
+- [ ] Criptoativos (noções introdutórias)
+
+## 🏛️ Mercado Bancário
+- [ ] Estrutura dos bancos no Brasil
+- [ ] Produtos bancários: conta corrente, crédito, cartões
+- [ ] Gestão de risco de crédito e inadimplência
+- [ ] Spread bancário
+- [ ] Gestão de risco de crédito
+
+## 💵 Produtos de Captação (Passivos)
+
+- [ ] Conta corrente e conta salário
+- [ ] Caderneta de poupança (TR, liquidez, tributação)
+- [ ] CDB/RDB (pré, pós, híbridos)
+- [ ] LCI e LCA (lastros, isenção, prazos)
+- [ ] DPGE – Depósito com Garantia Especial
+- [ ] Cobertura do FGC e limites
+
+## 💎 Produtos de Crédito (Ativos)
+
+- [ ] Crédito pessoal e consignado
+- [ ] Financiamentos (veículos, imóveis)
+- [ ] Cartões de crédito e crédito rotativo
+- [ ] Cheque especial
+- [ ] Home equity
+- [ ] SAC x PRICE
+- [ ] CET (Custo Efetivo Total)
+- [ ] Margem consignável
+
+## Produtos de Investimento
+
+- [ ] Fundos de Investimento (RF, Ações, Multimercado)
+- [ ] Classificação ANBIMA de fundos
+- [ ] Tesouro Direto (prefixado, Selic, IPCA+)
+- [ ] Debêntures, CRI, CRA
+- [ ] COE (Certificados de Operações Estruturadas)
+- [ ] Previdência Privada (PGBL x VGBL, regimes de tributação)
+
+## 🪙 Seguros, Capitalização e Consórcios
+
+- [ ] Seguro de vida, residencial, prestamista
+- [ ] Capitalização: como funciona, vantagens e riscos
+- [ ] Consórcios: cartas de crédito e contemplação
+- [ ] Produtos híbridos (investimentos + seguros)
+
+## 🏦 Tributação, Perfil e Riscos
+
+- [ ] Tributação de RF, fundos, ações e previdência
+- [ ] IOF regressivo
+- [ ] Come-cotas e regimes de fundos (curto/longo prazo)
+- [ ] Suitability e perfil do investidor
+- [ ] Resolução CVM 30 / ANBIMA Código de Varejo
+- [ ] Avaliação de risco e compatibilidade de produto
+
+## 📜 Regulação Bancária
+- [ ] Resoluções do BACEN (ex: 4.966), IFRS9, Basileia III
+- [ ] Supervisão e compliance bancário
+- [ ] Sistema de garantias (FGC)
+
+## 📐 Matemática Financeira e Valuation
+- [ ] Juros simples e compostos
+- [ ] Valor presente e valor futuro
+- [ ] Duration, convexidade
+- [ ] Valuation (DCF, Múltiplos)
+
+## 📊 Economia e Política Monetária
+- [ ] Inflação, juros, câmbio, PIB
+- [ ] Selic, inflação, PIB
+- [ ] Política monetária e fiscal
+
+## 📈 Demonstrações Financeiras
+- [ ] DRE, Balanço Patrimonial, DFC
+- [ ] Indicadores: ROE, ROA, Índice de Basileia
+- [ ] Análise fundamentalista e risco de crédito
+
+## 🧠 Tecnologia e Inovação
+- [ ] Pix, Open Finance, Open Banking
+- [ ] Fintechs e bancos digitais
+- [ ] Sandbox regulatório e APIs bancárias
+
+## 🎓 Certificações (extra)
+- [ ] CPA-10 / CPA-20 (Anbima)
+- [ ] CEA – Certificação de Especialista em Investimentos
+- [ ] CGA / CNPI – Gestão e análise
+- [ ] FRM / CFA – Certificações globais de finanças
