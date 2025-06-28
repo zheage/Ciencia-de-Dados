@@ -8,7 +8,7 @@ O objetivo é consolidar, revisar e compartilhar conhecimentos de forma organiza
 
 ### 🔖 Tipos de commit (padronização)
 
-| Tag        | Descrição                                             |
+| Tag        | Descrição                                              |
 |------------|--------------------------------------------------------|
 | `docs`     | Alteração de documentação                              |
 | `experiment` | Testes exploratórios                                 |
@@ -83,7 +83,7 @@ Checklist com os principais tópicos que um cientista de dados deve dominar para
 - [ ] Diferenças entre RDD, DataFrame e Dataset  
 - [ ] Leitura e escrita de arquivos (CSV, JSON, Parquet)  
 - [ ] Schema explícito vs. inferência automática  
-- [ ] Trabalhando com `show()`, `printSchema()`, `describe()`, `select()`  
+- [x] Trabalhando com `show()`, `printSchema()`, `describe()`, `select()`  
 
 ## 🧪 Manipulação de Dados com DataFrames
 - [ ] Filtros (`filter()`, `where()`)  
@@ -97,7 +97,8 @@ Checklist com os principais tópicos que um cientista de dados deve dominar para
 
 ## 🔄 Transformações Avançadas e Performance
 - [ ] Lazy evaluation: como funciona e por que importa  
-- [ ] Particionamento e `repartition()` vs. `coalesce()`  
+- [x] Particionamento: `repartition()` vs. `coalesce()`  
+>>>>>>> Stashed changes
 - [x] Broadcast joins e quando utilizá-los  
 - [ ] Caching com `cache()` e `persist()`  
 - [ ] UDFs e Pandas UDFs (User Defined Functions)  
