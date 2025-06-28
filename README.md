@@ -83,7 +83,7 @@ Checklist com os principais tópicos que um cientista de dados deve dominar para
 - [ ] Diferenças entre RDD, DataFrame e Dataset  
 - [ ] Leitura e escrita de arquivos (CSV, JSON, Parquet)  
 - [ ] Schema explícito vs. inferência automática  
-- [ ] Trabalhando com `show()`, `printSchema()`, `describe()`, `select()`  
+- [ ] Trabalhando com `show()`, `printSchema()`, `describe()`, `select()`  n
 
 ## 🧪 Manipulação de Dados com DataFrames
 - [ ] Filtros (`filter()`, `where()`)  
@@ -97,9 +97,9 @@ Checklist com os principais tópicos que um cientista de dados deve dominar para
 
 ## 🔄 Transformações Avançadas e Performance
 - [ ] Lazy evaluation: como funciona e por que importa  
-- [ ] Particionamento e `repartition()` vs. `coalesce()`  
+- [x] Particionamento e `repartition()` vs. `coalesce()`  
 - [x] Broadcast joins e quando utilizá-los  
-- [ ] Caching com `cache()` e `persist()`  
+- [x] Caching com `cache()` e `persist()`  
 - [ ] UDFs e Pandas UDFs (User Defined Functions)  
 - [ ] Leitura eficiente com `.option()`, `.schema()`, `.mode()`  
 
