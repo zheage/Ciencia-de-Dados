@@ -8,7 +8,7 @@ O objetivo é consolidar, revisar e compartilhar conhecimentos de forma organiza
 
 ### 🔖 Tipos de commit (padronização)
 
-| Tag        | Descrição                                             |
+| Tag        | Descrição                                              |
 |------------|--------------------------------------------------------|
 | `docs`     | Alteração de documentação                              |
 | `experiment` | Testes exploratórios                                 |
@@ -83,6 +83,7 @@ Checklist com os principais tópicos que um cientista de dados deve dominar para
 - [ ] Diferenças entre RDD, DataFrame e Dataset  
 - [ ] Leitura e escrita de arquivos (CSV, JSON, Parquet)  
 - [ ] Schema explícito vs. inferência automática  
+- [x] Trabalhando com `show()`, `printSchema()`, `describe()`, `select()`  
 - [ ] Trabalhando com `show()`, `printSchema()`, `describe()`, `select()`  n
 
 ## 🧪 Manipulação de Dados com DataFrames
@@ -98,6 +99,8 @@ Checklist com os principais tópicos que um cientista de dados deve dominar para
 ## 🔄 Transformações Avançadas e Performance
 - [ ] Lazy evaluation: como funciona e por que importa  
 - [x] Particionamento e `repartition()` vs. `coalesce()`  
+- [x] Particionamento: `repartition()` vs. `coalesce()`  
+>>>>>>> Stashed changes
 - [x] Broadcast joins e quando utilizá-los  
 - [x] Caching com `cache()` e `persist()`  
 - [ ] UDFs e Pandas UDFs (User Defined Functions)  
@@ -342,9 +345,3 @@ Uma lista com os principais tópicos de POO que um cientista de dados deve domin
 - [ ] Pix, Open Finance, Open Banking
 - [ ] Fintechs e bancos digitais
 - [ ] Sandbox regulatório e APIs bancárias
-
-## 🎓 Certificações (extra)
-- [ ] CPA-10 / CPA-20 (Anbima)
-- [ ] CEA – Certificação de Especialista em Investimentos
-- [ ] CGA / CNPI – Gestão e análise
-- [ ] FRM / CFA – Certificações globais de finanças
