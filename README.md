@@ -261,6 +261,19 @@ Uma lista com os principais tópicos de POO que um cientista de dados deve domin
 - [ ] Instituições financeiras: bancos comerciais, múltiplos, cooperativas, financeiras
 - [ ] Papel do BACEN, CVM, SUSEP
 - [ ] Sistema de Pagamentos Brasileiro (SPB)
+  
+
+## 📑 Relatórios de Impacto para Risco de Crédito
+
+- [ ] Balanço Patrimonial
+- [ ] DRE (Demonstração do Resultado do Exercício)
+- [ ] Notas Explicativas e Release de RI
+- [ ] DLO (Demonstrativos de Limites Operacionais) 
+- [ ] RAS (Relatório de Apetite ao Risco)
+- [ ] PR (Patrimônio de Referência)
+- [ ] RWA (Ativos Ponderados pelo Risco)
+- [ ] Índice de Basiléia  
+- [ ] CEA (Capital Econômico Alocado)
 
 ## 💰 Tipos de Ativos Financeiros
 - [ ] Renda Fixa: CDB, LCI, LCA, Tesouro Direto, Debêntures
@@ -345,3 +358,89 @@ Uma lista com os principais tópicos de POO que um cientista de dados deve domin
 - [ ] Pix, Open Finance, Open Banking
 - [ ] Fintechs e bancos digitais
 - [ ] Sandbox regulatório e APIs bancárias
+
+## 🧱 Áreas de Atuação do Cientista de Dados
+
+### 💼 1. Comercial / Produtos
+- [ ] Precificação de produtos bancários
+- [ ] Elasticidade de demanda, análise de canais
+- [ ] Análise de rentabilidade por produto
+- [ ] Segmentação de clientes por perfil de consumo
+
+### 🧮 2. Crédito (Políticas, Estratégias, Precificação, Modelagem)
+- [ ] Modelos de PD, LGD, EAD
+- [ ] Segmentação de risco e definição de políticas de concessão
+- [ ] IFRS 9 e BACEN 4966
+- [ ] Scorecards, regressão logística, LightGBM, XGBoost
+
+### 💳 3. Cobrança
+- [ ] Modelos de propensão à recuperação
+- [ ] Análise de canais e estratégias de cobrança
+- [ ] Otimização de contingência
+- [ ] Segmentações de inadimplência
+
+### 📣 4. Marketing / CRM
+- [ ] Modelagem de churn, LTV, campanhas de aquisição
+- [ ] Segmentações comportamentais
+- [ ] Modelos de recomendação e cross-sell
+- [ ] Uplift modeling e análise de campanhas
+
+### 📊 5. Riscos (Crédito, Mercado e Operacional)
+- [ ] Estudo de VaR, CVaR e stress testing
+- [ ] Modelagem de risco operacional (eventos, KRI)
+- [ ] Cálculo de provisões (esperadas x inesperadas)
+- [ ] Risco soberano, câmbio, liquidez
+
+### 🔐 6. Prevenção à Fraude
+- [ ] Modelos supervisionados e não supervisionados
+- [ ] Análise de redes (graph analytics)
+- [ ] Detecção em tempo real (streaming + alertas)
+- [ ] Engenharia de variáveis comportamentais
+
+### 🧾 7. Gestão de Carteira e Portfólio
+- [ ] Painéis de monitoramento de indicadores (dashboards)
+- [ ] Curvas de vintage, roll rate, aging
+- [ ] Análise de dispersão e concentração de risco
+- [ ] Segmentações de carteira
+
+### 🛠️ 8. TI / Engenharia de Dados / MLOps / DevOps
+- [ ] Arquitetura de dados (Data Lake, Delta Lake)
+- [ ] Pipelines de ingestão (Airflow, Spark, DBT)
+- [ ] Versionamento de modelos (MLflow, DVC)
+- [ ] Infraestrutura em nuvem (Azure, AWS)
+
+### 📈 9. MIS / BI / Portfólio
+- [ ] Automatização de relatórios e rotinas
+- [ ] Visualização de KPIs regulatórios e de negócio
+- [ ] Power BI, Tableau, Metabase
+- [ ] Modelagem de dados (dimensional, star schema)
+
+### 💹 10. Investimento / Tesouraria / Mercado de Capitais
+- [ ] Avaliação de derivativos, precificação de ativos
+- [ ] Modelos de previsão de séries temporais financeiras
+- [ ] Análise de risco de mercado e de liquidez
+- [ ] Curvas de juros, duration, convexidade
+
+### 📋 11. Compliance / Auditoria / Controles Internos
+- [ ] Monitoramento de limites, alçadas e exceções
+- [ ] LGPD, KYC, PLDFT
+- [ ] Análises de aderência a normas (CVM, BACEN)
+- [ ] Criação de trilhas de auditoria com logs e metadados
+
+### 🧾 12. Contabilidade / Controladoria / Fiscal
+- [ ] Impacto das provisões nos demonstrativos
+- [ ] Consolidação de resultados contábeis
+- [ ] Análise de IRPJ/CSLL e efeitos fiscais
+- [ ] Entendimento do COSIF e plano contábil
+
+### ⚖️ 13. Jurídico Contencioso
+- [ ] Modelos de probabilidade de perda judicial
+- [ ] Análise de litígios e clusters de ações
+- [ ] Text mining de petições e decisões
+- [ ] Suporte a provisionamento contábil
+
+### 🚀 14. Inovação e Projetos de Dados
+- [ ] Criação de protótipos e POCs com IA
+- [ ] Automação com IA generativa e copilots
+- [ ] Open Finance, Explainable AI (SHAP, LIME)
+- [ ] Cultura analítica e transformação digital
