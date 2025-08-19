@@ -20,59 +20,6 @@ O objetivo é consolidar, revisar e compartilhar conhecimentos de forma organiza
 
 ---
 
-# 📘 Trilha de Estudos: Machine Learning para Risco de Crédito (com base no ESL)
-
-## 🧱 Fundamentos Estatísticos e Pré-processamento
-
-- [ ] Reforçar conceitos de probabilidade e inferência com Casella & Berger
-- [ ] Realizar análise exploratória (EDA) em bases como HMEQ
-- [ ] Identificar e tratar outliers e valores ausentes
-- [ ] Aplicar técnicas de normalização, binning supervisionado e WOE
-
-## 🌲 Métodos Lineares para Classificação
-
-- [ ] Estudar Regressão Logística (Cap. 4 do ESL)
-- [ ] Explorar regularização Lasso e Ridge (Cap. 3)
-- [ ] Aplicar Análise Discriminante Linear (LDA)
-- [ ] Implementar um scorecard com `scorecardpy` ou `statsmodels`
-
-## 🌳 Métodos Não Lineares e Árvores
-
-- [ ] Entender árvores de decisão e suas divisões (Cap. 9)
-- [ ] Aplicar Random Forest e Bagging (Cap. 15)
-- [ ] Implementar modelos com Boosting (Cap. 10) usando LightGBM
-- [ ] Comparar performance entre Logit e Gradient Boosting com HMEQ
-
-## ⛓ Modelos de Tempo e Sobrevivência
-
-- [ ] Estudar Hazard Models (discreto e contínuo)
-- [ ] Aplicar o modelo de Cox com `lifelines`
-- [ ] Trabalhar com covariáveis dependentes do tempo
-- [ ] Implementar modelagem de PD com sobrevivência (ex: `pycox`)
-
-## 🧪 Validação, Performance e Dados Desbalanceados
-
-- [ ] Avaliar modelos com AUC, KS, Lift, Precision/Recall
-- [ ] Tratar dados desbalanceados com SMOTE e undersampling
-- [ ] Calcular e monitorar o PSI para estabilidade de variáveis
-- [ ] Implementar validação cruzada e holdout temporal4
-
-## 🧠 Modelos Avançados e Interpretação
-
-- [ ] Explorar SVM e Kernel Methods (Cap. 12)
-- [ ] Estudar técnicas de explicabilidade (SHAP, LIME)
-- [ ] Trabalhar com modelos de múltiplas saídas (Cap. 11)
-- [ ] Estimar PD, LGD e EAD em tarefas multi-target
-
-## 📦 Recursos Complementares
-
-- [ ] Baixar bases públicas: HMEQ, Lending Club, Home Credit (Kaggle)
-- [ ] Estudar IFRS 9, Resolução CMN 4966 e Basel II/III
-- [ ] Familiarizar-se com `scikit-learn`, `lightgbm`, `lifelines`, `statsmodels`
-- [ ] Revisar capítulos específicos no livro _Credit Risk Analytics_ (Baesens)
-
----
-
 # ⚡ Trilha de Estudos PySpark
 
 Checklist com os principais tópicos que um cientista de dados deve dominar para trabalhar com PySpark em ambientes de big data, incluindo transformações, modelagem e performance.
@@ -100,7 +47,6 @@ Checklist com os principais tópicos que um cientista de dados deve dominar para
 - [ ] Lazy evaluation: como funciona e por que importa  
 - [x] Particionamento e `repartition()` vs. `coalesce()`  
 - [x] Particionamento: `repartition()` vs. `coalesce()`  
->>>>>>> Stashed changes
 - [x] Broadcast joins e quando utilizá-los  
 - [x] Caching com `cache()` e `persist()`  
 - [ ] UDFs e Pandas UDFs (User Defined Functions)  
@@ -142,7 +88,7 @@ Checklist com os principais tópicos que um cientista de dados deve dominar para
 
 ---
 
-## ✅ Roadmap SQL para Cientistas de Dados
+## ✅ Roadmap SQL
 
 
 ## 📘 Fundamentos de SQL
@@ -195,65 +141,6 @@ Checklist com os principais tópicos que um cientista de dados deve dominar para
 
 ---
 
-# 🧠 Trilha de Programação Orientada a Objetos
-
-Uma lista com os principais tópicos de POO que um cientista de dados deve dominar para estruturar códigos mais robustos, reutilizáveis e escaláveis com Python.
-
-## ✅ Fundamentos da Programação Orientada a Objetos
-- [ ] O que é POO? Paradigmas imperativos vs. orientados a objetos  
-- [ ] Conceitos de Classe e Objeto  
-- [ ] Atributos de instância vs. atributos de classe  
-- [ ] Métodos de instância  
-- [ ] Construtor (`__init__`) e inicialização de objetos  
-- [ ] Representação com `__str__()` e `__repr__()`  
-- [ ] Atributos privados (`_`, `__`) e convenções
-
-## 🔁 Encapsulamento e Propriedades
-- [ ] Encapsulamento: o que é e por que importa  
-- [ ] Getters e setters em Python  
-- [ ] Uso do decorador `@property`  
-- [ ] Controle de acesso (simulado) com underscores
-
-## 🧬 Herança e Composição
-- [ ] Herança simples e múltipla  
-- [ ] `super()` e chamada da superclasse  
-- [ ] Override de métodos  
-- [ ] `isinstance()` e `issubclass()`  
-- [ ] Composição vs. herança (preferência por composição)
-
-## 🧩 Polimorfismo
-- [ ] Métodos com o mesmo nome em classes diferentes  
-- [ ] Duck typing: “if it quacks like a duck…”  
-- [ ] Uso prático em código genérico e testes
-
-## 🧱 Classes Abstratas e Interfaces
-- [ ] Módulo `abc` e classe `ABC`  
-- [ ] Métodos abstratos com `@abstractmethod`  
-- [ ] Por que usar classes abstratas em pipelines de ML ou ETL?
-
-## 📦 Organização e Design
-- [ ] Módulos e pacotes em Python  
-- [ ] Organização de múltiplas classes em um projeto  
-- [ ] Inversão de dependência básica  
-- [ ] SOLID principles (resumidamente)
-
-## 🧪 Aplicações Práticas em Ciência de Dados
-- [ ] Criar uma classe `Dataset` que encapsula limpeza, validação e transformação  
-- [ ] Criar uma classe `FeatureEngineer` com métodos como `.scale()`, `.encode()`  
-- [ ] Classe `ModelWrapper` para encapsular modelo, predict e métricas  
-- [ ] Abstração para múltiplos modelos (`Regressor`, `Classifier`, etc.)  
-- [ ] Implementação de pipelines com objetos customizados  
-- [ ] Projeto final: mini framework com suas próprias classes de modelagem
-
-## 🧠 Extras (bons diferenciais)
-- [ ] Uso de `__slots__` para otimização de memória  
-- [ ] Métodos mágicos (`__eq__`, `__len__`, `__iter__`, etc.)  
-- [ ] Introdução a design patterns (Factory, Strategy, etc.)  
-- [ ] Decoradores de classe e `@classmethod`, `@staticmethod`  
-- [ ] Testes com classes: usando `pytest` e `unittest`
-
----
-
 # 📚 Roadmap: Sistema Bancário e Ativos Financeiros
 
 ## 🏦 Fundamentos do Sistema Financeiro Nacional (SFN)
@@ -266,6 +153,9 @@ Uma lista com os principais tópicos de POO que um cientista de dados deve domin
 ## 📑 Relatórios de Impacto para Risco de Crédito
 
 - [ ] Balanço Patrimonial
+  - [Bradesco](https://www.bradescori.com.br/informacoes-ao-mercado/relatorios-e-planilhas/relatorios/) 
+  - [Itaú](https://www.itau.com.br/relacoes-com-investidores/resultados-e-relatorios/central-de-resultados/)
+  - [NuBank](https://nubank.com.br/transparencia/relatorios-financeiros)
 - [ ] DRE (Demonstração do Resultado do Exercício)
 - [ ] Notas Explicativas e Release de RI
 - [ ] DLO (Demonstrativos de Limites Operacionais) 
