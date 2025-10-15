@@ -19,4 +19,3 @@ O objetivo é consolidar, revisar e compartilhar conhecimentos de forma organiza
 | `refactor` | Refatoração de código existente (sem mudar funcionalidade) |
 
 ---
-
