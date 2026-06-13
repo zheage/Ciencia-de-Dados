@@ -5,3 +5,5 @@ venv/
 *.pptx
 *.pdf
 *.csv
+*.parquet
+*.xlsx
