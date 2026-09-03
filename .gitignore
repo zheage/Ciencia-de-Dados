@@ -7,3 +7,5 @@ venv/
 *.csv
 *.parquet
 *.xlsx
+# PDFs de pesquisa versionados
+!pdfs/*.pdf
