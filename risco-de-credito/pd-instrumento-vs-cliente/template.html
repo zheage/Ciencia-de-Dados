@@ -1,0 +1,589 @@
+<title>PD por instrumento ou por cliente</title>
+<meta name="description" content="Simulação comparando PD estimada a nível instrumento e a nível cliente, com seção sobre análise de sobrevivência para PD lifetime de cliente.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&family=Literata:opsz,wght@7..72,500;7..72,600&display=swap">
+<style>
+:root {
+  color-scheme: light;
+  --bg: #f6f7f9;
+  --surface: #fdfdfc;
+  --surface-2: #eef0f4;
+  --ink: #12151a;
+  --ink-2: #4c5361;
+  --muted: #858c99;
+  --grid: #e2e5eb;
+  --axis: #c2c7d0;
+  --border: rgba(18,21,26,0.10);
+  --accent: #2a78d6;
+  --s-instr: #2a78d6;
+  --s-cli: #eb6834;
+  --s-obs: #1baf7a;
+  --s-baixo: #86b6ef;
+  --s-medio: #2a78d6;
+  --s-alto: #104281;
+  --r1: #86b6ef; --r2: #5598e7; --r3: #2a78d6; --r4: #1c5cab; --r5: #0d366b;
+  --good: #006300;
+  --serif: "Literata", Georgia, "Times New Roman", serif;
+  --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #0f1114;
+    --surface: #1a1c20;
+    --surface-2: #23262c;
+    --ink: #f3f4f6;
+    --ink-2: #c3c6cd;
+    --muted: #8a909b;
+    --grid: #2b2f36;
+    --axis: #3a3f48;
+    --border: rgba(255,255,255,0.10);
+    --accent: #3987e5;
+    --s-instr: #3987e5;
+    --s-cli: #d95926;
+    --s-obs: #199e70;
+    --s-baixo: #86b6ef;
+    --s-medio: #3987e5;
+    --s-alto: #184f95;
+    --r1: #86b6ef; --r2: #5598e7; --r3: #3987e5; --r4: #256abf; --r5: #184f95;
+    --good: #0ca30c;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0f1114;
+  --surface: #1a1c20;
+  --surface-2: #23262c;
+  --ink: #f3f4f6;
+  --ink-2: #c3c6cd;
+  --muted: #8a909b;
+  --grid: #2b2f36;
+  --axis: #3a3f48;
+  --border: rgba(255,255,255,0.10);
+  --accent: #3987e5;
+  --s-instr: #3987e5;
+  --s-cli: #d95926;
+  --s-obs: #199e70;
+  --s-baixo: #86b6ef;
+  --s-medio: #3987e5;
+  --s-alto: #184f95;
+  --r1: #86b6ef; --r2: #5598e7; --r3: #3987e5; --r4: #256abf; --r5: #184f95;
+  --good: #0ca30c;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font-family: var(--sans); font-size: 16px; line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+main { max-width: 1120px; margin: 0 auto; padding: 40px 24px 96px; }
+h1, h2, h3 { font-family: var(--serif); font-weight: 600; letter-spacing: -0.01em; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(30px, 4.2vw, 44px); line-height: 1.1; }
+h2 { font-size: 26px; line-height: 1.2; margin-top: 8px; }
+h3 { font-size: 19px; line-height: 1.3; }
+p { max-width: 68ch; margin: 0; }
+p + p { margin-top: 12px; }
+a { color: var(--accent); }
+.eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+header.top { display: grid; gap: 14px; padding-bottom: 32px; border-bottom: 1px solid var(--border); }
+header.top .lede { font-size: 18px; color: var(--ink-2); max-width: 62ch; }
+header.top .meta { display: flex; flex-wrap: wrap; gap: 8px 22px; font-family: var(--mono); font-size: 12.5px; color: var(--muted); }
+section { padding-top: 44px; display: grid; gap: 20px; }
+section > .sec-head { display: grid; gap: 8px; }
+.prose { display: grid; gap: 12px; }
+.prose ul, .prose ol { margin: 0; padding-left: 22px; max-width: 68ch; }
+.prose li { margin: 4px 0; }
+.prose strong { font-weight: 600; }
+code { font-family: var(--mono); font-size: 0.9em; background: var(--surface-2); padding: 1px 5px; border-radius: 4px; }
+.note { border-left: 3px solid var(--accent); padding: 10px 16px; background: var(--surface); color: var(--ink-2); max-width: 72ch; }
+.note.warn { border-left-color: var(--s-cli); }
+
+/* filtros */
+.filters { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 28px; padding: 14px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--bg); z-index: 5; }
+.filter { display: flex; align-items: center; gap: 10px; }
+.filter .lbl { font-size: 13px; color: var(--ink-2); }
+.seg { display: inline-flex; border: 1px solid var(--axis); border-radius: 8px; overflow: hidden; background: var(--surface); }
+.seg button { font: inherit; font-size: 13.5px; padding: 6px 12px; border: 0; background: transparent; color: var(--ink-2); cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--axis); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.seg button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+
+/* tiles */
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+.tile { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; display: grid; gap: 4px; }
+.tile .lbl { font-size: 12.5px; color: var(--ink-2); }
+.tile .val { font-size: 28px; font-weight: 600; line-height: 1.1; }
+.tile .sub { font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+.key { display: inline-block; width: 14px; height: 3px; border-radius: 2px; }
+.key.sw { width: 10px; height: 10px; border-radius: 2px; }
+
+/* charts */
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 16px; }
+.chart { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px 16px 12px; display: grid; gap: 8px; position: relative; min-width: 0; }
+.chart h3 { font-family: var(--sans); font-size: 15px; font-weight: 600; }
+.chart .sub { font-size: 13px; color: var(--ink-2); max-width: none; }
+.chart .legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12.5px; color: var(--ink-2); }
+.chart .legend span { display: inline-flex; align-items: center; gap: 6px; }
+.chart svg { width: 100%; height: auto; display: block; overflow: visible; font-family: var(--sans); }
+.chart svg text { fill: var(--muted); font-size: 11.5px; font-variant-numeric: tabular-nums; }
+.chart svg .axl { fill: var(--ink-2); font-size: 11.5px; }
+.chart svg .grid line { stroke: var(--grid); stroke-width: 1; }
+.chart svg .axis line { stroke: var(--axis); stroke-width: 1; }
+.chart svg .lbl { fill: var(--ink-2); font-size: 11.5px; font-weight: 500; }
+.chart svg .mark:hover, .chart svg .mark:focus { filter: brightness(1.12); outline: none; }
+.chart .tip { position: absolute; pointer-events: none; background: var(--surface); color: var(--ink); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; font-size: 12.5px; box-shadow: 0 6px 18px rgba(0,0,0,0.12); display: none; min-width: 140px; z-index: 3; }
+.chart .tip .h { color: var(--muted); font-size: 11.5px; margin-bottom: 4px; }
+.chart .tip .r { display: flex; align-items: center; gap: 8px; justify-content: space-between; }
+.chart .tip .r b { font-variant-numeric: tabular-nums; font-weight: 600; }
+.chart .tip .r span { display: inline-flex; align-items: center; gap: 6px; color: var(--ink-2); }
+.chart details { font-size: 12.5px; color: var(--ink-2); }
+.chart details summary { cursor: pointer; }
+.chart table { border-collapse: collapse; font-size: 12.5px; margin-top: 8px; font-variant-numeric: tabular-nums; }
+.chart table th, .chart table td { padding: 3px 10px 3px 0; text-align: right; border-bottom: 1px solid var(--grid); }
+.chart table th:first-child, .chart table td:first-child { text-align: left; }
+.chart .tblwrap { overflow-x: auto; }
+.chart.fade svg { opacity: 0.4; transition: opacity 0.15s; }
+
+/* tabela de desenho */
+table.spec { border-collapse: collapse; font-size: 14px; width: 100%; max-width: 760px; }
+table.spec th, table.spec td { padding: 8px 12px 8px 0; text-align: left; border-bottom: 1px solid var(--grid); vertical-align: top; }
+table.spec th { font-weight: 600; color: var(--ink-2); font-size: 13px; width: 200px; }
+.tblwrap { overflow-x: auto; }
+.num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.dyn { font-variant-numeric: tabular-nums; font-weight: 600; }
+
+/* timeline diagram */
+.timeline svg text { font-size: 12px; }
+.callouts { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
+.callout { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; display: grid; gap: 6px; font-size: 14px; color: var(--ink-2); }
+.callout b { color: var(--ink); font-weight: 600; }
+.formula { font-family: var(--mono); font-size: 14px; background: var(--surface-2); padding: 12px 16px; border-radius: 8px; overflow-x: auto; white-space: nowrap; }
+footer { margin-top: 56px; padding-top: 20px; border-top: 1px solid var(--border); font-size: 13px; color: var(--muted); }
+@media (max-width: 640px) { .grid2 { grid-template-columns: 1fr; } main { padding: 28px 16px 64px; } }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<main>
+<header class="top">
+  <div class="eyebrow">Simulação · PD 12 meses · CMN 4.966 e IFRS 9</div>
+  <h1>PD por instrumento ou por cliente</h1>
+  <p class="lede">Mesma carteira, mesmas variáveis, duas granularidades de modelo. A pergunta que importa não é "qual tem Gini maior", é qual delas mede o evento que a definição de default marca.</p>
+  <div class="meta">
+    <span>clientes <span class="num" data-meta="n_clientes"></span></span>
+    <span>contratos <span class="num" data-meta="n_contratos"></span></span>
+    <span>holdout 40% por cliente</span>
+    <span>regressão logística nas duas granularidades</span>
+    <span>seed <span class="num" data-meta="seed"></span></span>
+  </div>
+</header>
+
+<section id="desenho">
+  <div class="sec-head">
+    <div class="eyebrow">1 · Desenho</div>
+    <h2>O que está sendo comparado</h2>
+  </div>
+  <div class="prose">
+    <p>Cada cliente carrega um fator latente de risco <code>Z</code> que os contratos dele compartilham. O parâmetro <code>ρ</code> controla quanto do risco residual de um contrato vem do cliente (compartilhado) e quanto é idiossincrático do contrato. O score observado é uma medida ruidosa de <code>Z</code>.</p>
+    <p>A definição de default é a variável que muda tudo. Na <strong>marcação no contrato</strong>, cada contrato entra em default por conta própria. Na <strong>marcação no cliente</strong> (arrasto), o atraso em um contrato contamina todos os demais do mesmo cliente, e o alvo de cada contrato passa a ser "o cliente defaultou".</p>
+  </div>
+  <div class="tblwrap"><table class="spec">
+    <tr><th>Modelo instrumento</th><td>Uma linha por contrato. Features do contrato (produto, prazo, parcela/renda, idade do contrato) mais features do cliente (score, renda, número de contratos). Alvo: default do contrato sob a marcação escolhida.</td></tr>
+    <tr><th>Modelo cliente</th><td>Uma linha por cliente. Features do cliente mais agregados dos contratos (saldo total, soma parcela/renda, prazo máximo, flags de produto). Alvo: algum contrato do cliente em default. A PD do cliente é atribuída a todos os contratos dele.</td></tr>
+    <tr><th>Avaliação</th><td>Sempre a nível contrato, no holdout, contra o alvo da marcação. Gini, KS, Brier, calibração por decil, PD média atribuída e ECL = Σ PD × LGD × EAD.</td></tr>
+    <tr><th>Partição</th><td>Treino e teste separados por cliente. Se contratos do mesmo cliente caíssem dos dois lados, o modelo instrumento memorizaria o fator do cliente e o Gini de teste sairia inflado.</td></tr>
+    <tr><th>Produtos e LGD</th><td>Consignado 35%, CDC veículo 40%, cartão 75%, crédito pessoal 70%. Distribuição de contratos por cliente: <span data-meta="dist"></span>.</td></tr>
+  </table></div>
+</section>
+
+<section id="resultados">
+  <div class="sec-head">
+    <div class="eyebrow">2 · Resultados</div>
+    <h2>Qual abordagem entrega a menor PD por contrato</h2>
+    <p>Os filtros valem para tudo abaixo: tiles, gráficos e o texto de leitura.</p>
+  </div>
+  <div class="filters" role="group" aria-label="Filtros da simulação">
+    <div class="filter"><span class="lbl">Marcação do default</span>
+      <div class="seg" id="seg-marc">
+        <button type="button" data-v="contrato" aria-pressed="true">No contrato</button>
+        <button type="button" data-v="cliente" aria-pressed="false">No cliente (arrasto)</button>
+      </div></div>
+    <div class="filter"><span class="lbl">Risco compartilhado ρ</span>
+      <div class="seg" id="seg-rho">
+        <button type="button" data-v="0.2" aria-pressed="false">0,2</button>
+        <button type="button" data-v="0.5" aria-pressed="true">0,5</button>
+        <button type="button" data-v="0.8" aria-pressed="false">0,8</button>
+      </div></div>
+  </div>
+
+  <div class="tiles" id="tiles"></div>
+
+  <div class="grid2">
+    <div class="chart" id="c-ncontr"></div>
+    <div class="chart" id="c-ecl"></div>
+    <div class="chart" id="c-calib-i"></div>
+    <div class="chart" id="c-calib-c"></div>
+    <div class="chart" id="c-roc"></div>
+    <div class="chart" id="c-hist"></div>
+    <div class="chart" id="c-prod"></div>
+    <div class="chart" id="c-scatter"></div>
+  </div>
+
+  <div class="prose" id="leitura">
+    <h3>Leitura</h3>
+    <div id="leitura-contrato">
+      <p>Com o default marcado no contrato, o modelo instrumento acerta o nível: PD média de <span class="dyn" data-val="i.pd_media"></span> contra taxa observada de <span class="dyn" data-val="taxa"></span>. O modelo cliente atribui <span class="dyn" data-val="c.pd_media"></span> a cada contrato, porque mede a probabilidade de <em>algum</em> contrato do cliente falhar e depois cola esse número em todos eles. Para um cliente com 4 contratos, a PD atribuída chega a <span class="dyn" data-val="c.pd4"></span> enquanto a taxa observada por contrato fica em <span class="dyn" data-val="obs4"></span>.</p>
+      <p>Não é problema de discriminação, é de alvo. O Gini cai (<span class="dyn" data-val="i.gini"></span> contra <span class="dyn" data-val="c.gini"></span>) porque a PD do cliente varia com o número de contratos e não com o risco de cada contrato, mas o dano principal é de calibração: o último decil do modelo cliente prevê <span class="dyn" data-val="c.cal10p"></span> e observa <span class="dyn" data-val="c.cal10o"></span>. A ECL sai <span class="dyn" data-val="razao_ecl"></span> vezes a perda observada.</p>
+    </div>
+    <div id="leitura-cliente" hidden>
+      <p>Com arrasto, o alvo do contrato passa a ser o default do cliente. As duas abordagens convergem no nível (PD média <span class="dyn" data-val="i.pd_media"></span> contra <span class="dyn" data-val="c.pd_media"></span>, taxa observada <span class="dyn" data-val="taxa"></span>) e na ECL (<span class="dyn" data-val="i.ecl"></span> contra <span class="dyn" data-val="c.ecl"></span>, perda observada <span class="dyn" data-val="obs_perda"></span>). O modelo cliente ganha um pouco de Gini (<span class="dyn" data-val="c.gini"></span> contra <span class="dyn" data-val="i.gini"></span>) porque enxerga os agregados do cliente que o modelo instrumento só vê pela metade.</p>
+      <p>A diferença que sobra é de coerência interna. O modelo instrumento continua dando PDs diferentes para contratos do mesmo cliente que respondem ao mesmo evento: a razão mediana entre a maior e a menor PD dentro de um cliente com 2 ou mais contratos é <span class="dyn" data-val="disp_razao"></span>. Na validação isso aparece como "por que o consignado deste cliente tem PD de 3% e o cartão dele tem 9%, se o default é o mesmo?".</p>
+    </div>
+    <div class="note">
+      <p>A comparação só faz sentido dentro de uma marcação. Comparar Gini do modelo cliente sob arrasto com Gini do modelo instrumento sem arrasto é comparar dois eventos diferentes.</p>
+    </div>
+  </div>
+</section>
+
+<section id="sobrevivencia">
+  <div class="sec-head">
+    <div class="eyebrow">3 · Sobrevivência</div>
+    <h2>Análise de sobrevivência quando a PD é construída a nível cliente</h2>
+    <p>Para Stage 2 a PD é lifetime, e lifetime de quem? O contrato tem vencimento. O cliente não. Isso muda a origem do tempo, o que é censura e o que é evento.</p>
+  </div>
+
+  <div class="chart timeline" id="c-timeline"></div>
+
+  <div class="callouts">
+    <div class="callout"><b>Origem do tempo</b>No instrumento, o relógio começa na originação e o hazard tem a forma de maturação (sobe, pico, cai). No cliente, a origem é o início do relacionamento ou a data de referência, e o hazard num mês é a combinação dos hazards dos contratos ativos naquele mês, cada um com a própria idade.</div>
+    <div class="callout"><b>Censura informativa</b>Cliente que liquida todos os contratos sai da observação sem default. Quem liquida antes tende a ser o de menor risco, então a censura não é independente do evento. Kaplan-Meier assume censura não informativa; declare a limitação ou modele a saída como risco competitivo.</div>
+    <div class="callout"><b>Truncamento à esquerda</b>Cliente que já tinha contratos antes da janela de observação entra "no meio da vida". Contar o tempo dele desde a entrada na janela, como se fosse origem, mistura idades e distorce o hazard nos primeiros meses.</div>
+    <div class="callout"><b>Riscos competitivos e recorrência</b>Liquidação total compete com default. Cura seguida de novo default é evento recorrente. Modelos de evento único tratam a cura como fim da história e subestimam a PD lifetime do cliente que reincide.</div>
+    <div class="callout"><b>Covariáveis variantes no tempo</b>Número de contratos ativos, utilização e atraso máximo mudam mês a mês. O modelo de hazard discreto em formato pessoa-período aceita isso naturalmente; um Cox com covariáveis fixas na origem não.</div>
+    <div class="callout"><b>O que vai para o Stage 2</b>PD marginal por período: h(t) × S(t-1). É essa a sequência que entra no somatório da ECL lifetime, e a soma acumulada tem de bater com a taxa de default por safra observada.</div>
+  </div>
+
+  <div class="formula">S(t) = ∏<sub>k≤t</sub> (1 − h(k))&nbsp;&nbsp;&nbsp;&nbsp;PD<sub>lifetime</sub>(T) = 1 − S(T)&nbsp;&nbsp;&nbsp;&nbsp;PD<sub>marginal</sub>(t) = h(t) · S(t−1)&nbsp;&nbsp;&nbsp;&nbsp;ECL = Σ<sub>t</sub> PD<sub>marginal</sub>(t) · LGD(t) · EAD(t) · d(t)</div>
+
+  <div class="grid2">
+    <div class="chart" id="c-km"></div>
+    <div class="chart" id="c-naive"></div>
+    <div class="chart" id="c-hz"></div>
+    <div class="chart" id="c-hzmod"></div>
+  </div>
+
+  <div class="prose">
+    <h3>O que o painel mostra</h3>
+    <p>O painel tem <span class="dyn" data-surv="n_clientes"></span> clientes e <span class="dyn" data-surv="n_contratos"></span> contratos, seguidos por 36 meses. Contratos nascem em datas escalonadas dentro do relacionamento, vencem ou são pré-pagos, e o pré-pagamento é mais frequente no cliente de baixo risco. <span class="dyn" data-surv="pct_censura"></span> dos clientes saem da observação antes do mês 36 sem default.</p>
+    <p>Ignorar a censura (defaults divididos pela coorte inicial) subestima a PD em 12 meses em <span class="dyn" data-surv="gap12"></span> e a PD em 36 meses em <span class="dyn" data-surv="gap36"></span> no total da carteira. É a mesma mecânica do viés de carência em PD 12 meses: um contrato que não podia dar default entrou no denominador como "bom". A correção de Kaplan-Meier fecha esse gap, mas não corrige o viés da censura informativa, que empurra na direção contrária e precisa ser declarado.</p>
+    <p>O hazard por idade do contrato tem o pico de maturação perto do mês 8. O hazard por tempo de relacionamento é mais alto e mais plano depois do primeiro ano, porque contratos novos do mesmo cliente reiniciam a maturação enquanto o relógio do cliente segue. Um modelo de PD lifetime a nível cliente que só usa o tempo desde a data de referência está estimando uma média dessa mistura, e ela muda quando o mix de idades dos contratos muda.</p>
+  </div>
+
+  <div class="note warn">
+    <p>Ponto regulatório para conferir no texto vigente da 4.966 e na regulamentação complementar do Banco Central: a unidade em que o ativo problemático é caracterizado e a regra de contaminação entre operações do mesmo cliente. O que a norma exige em substância é que a marcação seja consistente; a granularidade do modelo tem que seguir essa marcação, não o contrário.</p>
+  </div>
+</section>
+
+<section id="conclusao">
+  <div class="sec-head">
+    <div class="eyebrow">4 · Decisão</div>
+    <h2>Quando usar cada uma</h2>
+  </div>
+  <div class="prose">
+    <ul>
+      <li><strong>Default marcado no contrato, sem arrasto:</strong> modelo a nível instrumento. O modelo cliente superestima a PD de todo contrato de cliente com mais de uma operação, e a superestimação cresce com o número de contratos.</li>
+      <li><strong>Default marcado no cliente, com arrasto:</strong> modelo a nível cliente com PD replicada nos contratos. Mesmo nível, Gini um pouco melhor e uma única PD por evento. Se a exigência for PD por contrato, derive segmentando a PD do cliente por produto na calibração, não treinando um modelo por contrato contra um alvo de cliente.</li>
+      <li><strong>Modelo híbrido</strong> (PD do cliente como feature do modelo de contrato) é aceitável só se o alvo do modelo de contrato for o default do contrato. Caso contrário, é o modelo cliente com passos a mais.</li>
+      <li><strong>Sempre:</strong> partição por cliente, avaliação na granularidade em que a ECL é calculada, e documentação da unidade de marcação do default antes da escolha de granularidade.</li>
+    </ul>
+  </div>
+</section>
+
+<footer>Dados sintéticos gerados por <code>simulacao.py</code> (numpy, pandas, scikit-learn). Página construída com SVG próprio, sem dependência externa. Os números mudam com o seed; as conclusões qualitativas não.</footer>
+</main>
+
+<script>
+const DADOS = __DADOS__;
+const fmtPct = (v, d = 1) => new Intl.NumberFormat('pt-BR', { style: 'percent', minimumFractionDigits: d, maximumFractionDigits: d }).format(v);
+const fmtNum = (v, d = 0) => new Intl.NumberFormat('pt-BR', { minimumFractionDigits: d, maximumFractionDigits: d }).format(v);
+const fmtMi = v => 'R$ ' + fmtNum(v / 1e6, 1) + ' mi';
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const COL = () => ({ instr: css('--s-instr'), cli: css('--s-cli'), obs: css('--s-obs'), baixo: css('--s-baixo'), medio: css('--s-medio'), alto: css('--s-alto'), ramp: [css('--r1'), css('--r2'), css('--r3'), css('--r4'), css('--r5')] });
+
+// ---------------------------------------------------------------- SVG helpers
+const NS = 'http://www.w3.org/2000/svg';
+function el(tag, attrs = {}, parent) { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; }
+function h(tag, cls, text) { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+function niceTicks(min, max, n = 5) {
+  const span = max - min || 1; const step0 = span / n; const p = Math.pow(10, Math.floor(Math.log10(step0)));
+  const cands = [1, 2, 2.5, 5, 10].map(m => m * p); const step = cands.find(s => span / s <= n) || cands[cands.length - 1];
+  const t = []; for (let v = Math.ceil(min / step) * step; v <= max + 1e-9; v += step) t.push(+v.toFixed(10)); return t;
+}
+function frame(root, o) {
+  root.innerHTML = '';
+  root.appendChild(h('h3', null, o.title));
+  if (o.sub) root.appendChild(h('div', 'sub', o.sub));
+  if (o.legend && o.legend.length > 1) {
+    const lg = h('div', 'legend');
+    o.legend.forEach(s => { const sp = h('span'); const k = h('i', 'key' + (s.swatch ? ' sw' : '')); k.style.background = s.color; sp.append(k, document.createTextNode(s.name)); lg.appendChild(sp); });
+    root.appendChild(lg);
+  }
+  const W = o.width || 560, H = o.height || 300, m = { t: 12, r: 14, b: 40, l: 52, ...(o.margin || {}) };
+  const svg = el('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': o.title });
+  root.appendChild(svg);
+  const pw = W - m.l - m.r, ph = H - m.t - m.b;
+  const xd = o.xDomain, yd = o.yDomain;
+  const xs = o.xLog ? (v => m.l + (Math.log10(v) - Math.log10(xd[0])) / (Math.log10(xd[1]) - Math.log10(xd[0])) * pw) : (v => m.l + (v - xd[0]) / (xd[1] - xd[0]) * pw);
+  const ys = v => m.t + ph - (v - yd[0]) / (yd[1] - yd[0]) * ph;
+  const g = el('g', { class: 'grid' }, svg);
+  const yt = o.yTicks || niceTicks(yd[0], yd[1], 5);
+  yt.forEach(v => { el('line', { x1: m.l, x2: m.l + pw, y1: ys(v), y2: ys(v) }, g); const t = el('text', { x: m.l - 8, y: ys(v) + 4, 'text-anchor': 'end' }, svg); t.textContent = (o.yFmt || fmtNum)(v); });
+  const ax = el('g', { class: 'axis' }, svg);
+  el('line', { x1: m.l, x2: m.l + pw, y1: ys(yd[0]), y2: ys(yd[0]) }, ax);
+  const xt = o.xTicks || niceTicks(xd[0], xd[1], 6);
+  xt.forEach(v => { const t = el('text', { x: xs(v), y: m.t + ph + 18, 'text-anchor': 'middle' }, svg); t.textContent = (o.xFmt || fmtNum)(v); });
+  if (o.xLabel) { const t = el('text', { x: m.l + pw / 2, y: H - 4, 'text-anchor': 'middle', class: 'axl' }, svg); t.textContent = o.xLabel; }
+  if (o.yLabel) { const t = el('text', { x: 12, y: m.t + ph / 2, 'text-anchor': 'middle', transform: `rotate(-90 12 ${m.t + ph / 2})`, class: 'axl' }, svg); t.textContent = o.yLabel; }
+  const plot = el('g', {}, svg);
+  const tip = h('div', 'tip'); root.appendChild(tip);
+  const showTip = (evt, title, rows) => {
+    tip.innerHTML = ''; const hd = h('div', 'h', title); tip.appendChild(hd);
+    rows.forEach(r => { const d = h('div', 'r'); const s = h('span'); const k = h('i', 'key' + (r.swatch ? ' sw' : '')); k.style.background = r.color; s.append(k, document.createTextNode(r.name)); const b = h('b', null, r.value); d.append(s, b); tip.appendChild(d); });
+    tip.style.display = 'block';
+    const rb = root.getBoundingClientRect(); let x = evt.clientX - rb.left + 14, y = evt.clientY - rb.top + 14;
+    if (x + tip.offsetWidth > rb.width - 8) x = evt.clientX - rb.left - tip.offsetWidth - 14; if (y + tip.offsetHeight > rb.height - 8) y = y - tip.offsetHeight - 28;
+    tip.style.left = x + 'px'; tip.style.top = y + 'px';
+  };
+  const hideTip = () => { tip.style.display = 'none'; };
+  svg.addEventListener('pointerleave', hideTip);
+  return { svg, plot, xs, ys, m, pw, ph, W, H, showTip, hideTip, root };
+}
+function tableView(root, header, rows) {
+  const d = document.createElement('details'); const s = document.createElement('summary'); s.textContent = 'Ver como tabela'; d.appendChild(s);
+  const w = h('div', 'tblwrap'); const t = document.createElement('table'); const tr = document.createElement('tr');
+  header.forEach(x => { const th = document.createElement('th'); th.textContent = x; tr.appendChild(th); }); t.appendChild(tr);
+  rows.forEach(r => { const tr = document.createElement('tr'); r.forEach(c => { const td = document.createElement('td'); td.textContent = c; tr.appendChild(td); }); t.appendChild(tr); });
+  w.appendChild(t); d.appendChild(w); root.appendChild(d);
+}
+
+// grouped bars
+function groupedBars(root, o) {
+  const cats = o.categories, S = o.series; const ymax = o.yMax || Math.max(...S.flatMap(s => s.values.filter(v => v != null))) * 1.15;
+  const f = frame(root, { ...o, xDomain: [0, cats.length], yDomain: [0, ymax], xTicks: [], legend: S, yFmt: o.yFmt });
+  const bw = f.pw / cats.length, gap = 2, n = S.length, maxW = 24, w = Math.min(maxW, (bw * 0.7 - gap * (n - 1)) / n), total = w * n + gap * (n - 1);
+  cats.forEach((c, i) => {
+    const t = el('text', { x: f.xs(i + 0.5), y: f.m.t + f.ph + 18, 'text-anchor': 'middle' }, f.svg); t.textContent = c;
+    S.forEach((s, j) => {
+      const v = s.values[i]; if (v == null) return; const x = f.xs(i + 0.5) - total / 2 + j * (w + gap), y = f.ys(v), hgt = f.ys(0) - y, r = Math.min(4, hgt);
+      const fill = o.barColors ? o.barColors[i] : s.color;
+      const p = el('path', { d: `M${x},${f.ys(0)} V${y + r} a${r},${r} 0 0 1 ${r},-${r} H${x + w - r} a${r},${r} 0 0 1 ${r},${r} V${f.ys(0)} Z`, fill, class: 'mark', tabindex: 0 }, f.plot);
+      const rows = S.map(ss => ({ name: ss.name, color: o.barColors ? fill : ss.color, swatch: true, value: ss.values[i] == null ? '–' : (o.yFmt || fmtNum)(ss.values[i]) }));
+      const extra = o.extra ? o.extra(i) : null;
+      p.addEventListener('pointermove', e => f.showTip(e, c + (extra ? ' · ' + extra : ''), rows));
+      p.addEventListener('focus', e => { const b = p.getBoundingClientRect(); f.showTip({ clientX: b.left + b.width / 2, clientY: b.top }, c, rows); });
+      p.addEventListener('blur', f.hideTip);
+      if (o.label && o.label(j)) { const t = el('text', { x: x + w / 2, y: y - 5, 'text-anchor': 'middle', class: 'lbl' }, f.plot); t.textContent = (o.yFmt || fmtNum)(v); }
+    });
+  });
+  tableView(root, [o.catLabel || ''].concat(S.map(s => s.name)), cats.map((c, i) => [c].concat(S.map(s => s.values[i] == null ? '–' : (o.yFmt || fmtNum)(s.values[i])))));
+}
+
+// multi-series lines with crosshair tooltip
+function lineChart(root, o) {
+  const S = o.series; const xs = o.x; const ymax = o.yMax != null ? o.yMax : Math.max(...S.flatMap(s => s.y.filter(v => v != null))) * 1.1;
+  const f = frame(root, { ...o, xDomain: o.xDomain || [xs[0], xs[xs.length - 1]], yDomain: [o.yMin || 0, ymax], legend: S.filter(s => !s.noLegend) });
+  if (o.diag) el('line', { x1: f.xs(0), y1: f.ys(0), x2: f.xs(Math.min(ymax, o.xDomain ? o.xDomain[1] : 1)), y2: f.ys(Math.min(ymax, o.xDomain ? o.xDomain[1] : 1)), stroke: css('--axis'), 'stroke-width': 1 }, f.plot);
+  S.forEach(s => {
+    if (s.band) { let d = ''; xs.forEach((x, i) => { d += (i ? 'L' : 'M') + f.xs(x) + ',' + f.ys(s.band.hi[i]); }); for (let i = xs.length - 1; i >= 0; i--) d += 'L' + f.xs(xs[i]) + ',' + f.ys(s.band.lo[i]); el('path', { d: d + 'Z', fill: s.color, opacity: 0.12 }, f.plot); }
+    if (s.area) { let d = 'M' + f.xs(xs[0]) + ',' + f.ys(0); xs.forEach((x, i) => { if (s.y[i] != null) d += 'L' + f.xs(x) + ',' + f.ys(s.y[i]); }); d += 'L' + f.xs(xs[xs.length - 1]) + ',' + f.ys(0) + 'Z'; el('path', { d, fill: s.color, opacity: 0.1 }, f.plot); }
+    let d = '', pen = false;
+    xs.forEach((x, i) => { const v = s.y[i]; if (v == null) { pen = false; return; } if (o.step && i > 0 && s.y[i - 1] != null) d += 'H' + f.xs(x); d += (pen ? 'L' : 'M') + f.xs(x) + ',' + f.ys(v); pen = true; });
+    el('path', { d, fill: 'none', stroke: s.color, 'stroke-width': s.width || 2, 'stroke-linejoin': 'round', 'stroke-linecap': 'round', 'stroke-dasharray': s.dash ? '5 4' : 'none' }, f.plot);
+    if (s.markers) xs.forEach((x, i) => { if (s.y[i] != null) el('circle', { cx: f.xs(x), cy: f.ys(s.y[i]), r: 4, fill: s.color, stroke: css('--surface'), 'stroke-width': 2 }, f.plot); });
+    if (s.endLabel) { const i = s.y.length - 1; const t = el('text', { x: f.xs(xs[i]) - 4, y: f.ys(s.y[i]) - 8, 'text-anchor': 'end', class: 'lbl' }, f.plot); t.textContent = s.endLabel; }
+  });
+  const cross = el('line', { y1: f.m.t, y2: f.m.t + f.ph, stroke: css('--axis'), 'stroke-width': 1, opacity: 0 }, f.plot);
+  const dots = S.map(s => el('circle', { r: 4.5, fill: s.color, stroke: css('--surface'), 'stroke-width': 2, opacity: 0 }, f.plot));
+  const rect = el('rect', { x: f.m.l, y: f.m.t, width: f.pw, height: f.ph, fill: 'transparent' }, f.svg);
+  rect.addEventListener('pointermove', e => {
+    const pt = f.svg.createSVGPoint(); pt.x = e.clientX; pt.y = e.clientY; const p = pt.matrixTransform(f.svg.getScreenCTM().inverse());
+    let best = 0, bd = Infinity; xs.forEach((x, i) => { const d = Math.abs(f.xs(x) - p.x); if (d < bd) { bd = d; best = i; } });
+    cross.setAttribute('x1', f.xs(xs[best])); cross.setAttribute('x2', f.xs(xs[best])); cross.setAttribute('opacity', 1);
+    S.forEach((s, j) => { const v = s.y[best]; if (v == null) { dots[j].setAttribute('opacity', 0); return; } dots[j].setAttribute('cx', f.xs(xs[best])); dots[j].setAttribute('cy', f.ys(v)); dots[j].setAttribute('opacity', 1); });
+    f.showTip(e, (o.xTip || o.xFmt || fmtNum)(xs[best]), S.map(s => ({ name: s.name, color: s.color, value: s.y[best] == null ? '–' : (o.yFmt || fmtNum)(s.y[best]) })));
+  });
+  rect.addEventListener('pointerleave', () => { cross.setAttribute('opacity', 0); dots.forEach(d => d.setAttribute('opacity', 0)); f.hideTip(); });
+  tableView(root, [o.xLabel || 'x'].concat(S.map(s => s.name)), xs.map((x, i) => [(o.xTip || o.xFmt || fmtNum)(x)].concat(S.map(s => s.y[i] == null ? '–' : (o.yFmt || fmtNum)(s.y[i])))));
+}
+
+function scatter(root, o) {
+  const f = frame(root, { ...o, legend: o.legend });
+  const C = COL();
+  o.points.forEach(p => {
+    const c = el('circle', { cx: f.xs(p[0]), cy: f.ys(p[1]), r: 3, fill: C.ramp[p[2] - 1], opacity: 0.75, class: 'mark' }, f.plot);
+  });
+  el('line', { x1: f.xs(o.xDomain[0]), y1: f.ys(o.xDomain[0]), x2: f.xs(o.xDomain[1]), y2: f.ys(o.xDomain[1]), stroke: css('--axis'), 'stroke-width': 1 }, f.plot);
+  const t = el('text', { x: f.xs(o.xDomain[1]) - 4, y: f.ys(o.xDomain[1]) + 14, 'text-anchor': 'end', class: 'lbl' }, f.plot); t.textContent = 'PD cliente = PD instrumento';
+  const rect = el('rect', { x: f.m.l, y: f.m.t, width: f.pw, height: f.ph, fill: 'transparent' }, f.svg);
+  const ring = el('circle', { r: 6, fill: 'none', stroke: css('--ink'), 'stroke-width': 1.5, opacity: 0 }, f.plot);
+  rect.addEventListener('pointermove', e => {
+    const pt = f.svg.createSVGPoint(); pt.x = e.clientX; pt.y = e.clientY; const p = pt.matrixTransform(f.svg.getScreenCTM().inverse());
+    let best = null, bd = Infinity; o.points.forEach(q => { const dx = f.xs(q[0]) - p.x, dy = f.ys(q[1]) - p.y, d = dx * dx + dy * dy; if (d < bd) { bd = d; best = q; } });
+    if (!best || bd > 400) { ring.setAttribute('opacity', 0); f.hideTip(); return; }
+    ring.setAttribute('cx', f.xs(best[0])); ring.setAttribute('cy', f.ys(best[1])); ring.setAttribute('opacity', 1);
+    f.showTip(e, 'Contrato de cliente com ' + best[2] + (best[2] > 1 ? ' contratos' : ' contrato'), [{ name: 'PD instrumento', color: C.instr, value: fmtPct(best[0]) }, { name: 'PD cliente', color: C.cli, value: fmtPct(best[1]) }]);
+  });
+  rect.addEventListener('pointerleave', () => { ring.setAttribute('opacity', 0); f.hideTip(); });
+  tableView(root, ['PD instrumento', 'PD cliente', 'Contratos do cliente'], o.points.slice(0, 200).map(p => [fmtPct(p[0]), fmtPct(p[1]), p[2]]));
+}
+
+// ---------------------------------------------------------------- render
+const state = { marc: 'contrato', rho: 0.5 };
+function cenario() { return DADOS.cenarios.find(c => c.marcacao === state.marc && Math.abs(c.rho - state.rho) < 1e-9); }
+function get(obj, path) { return path.split('.').reduce((a, k) => a[k], obj); }
+
+function tiles(c) {
+  const C = COL(); const root = document.getElementById('tiles'); root.innerHTML = '';
+  const mk = (lbl, val, sub, color) => { const t = h('div', 'tile'); t.appendChild(h('div', 'lbl', lbl)); t.appendChild(h('div', 'val', val)); const s = h('div', 'sub'); if (color) { const k = h('i', 'key'); k.style.background = color; s.appendChild(k); } s.appendChild(document.createTextNode(sub)); t.appendChild(s); root.appendChild(t); };
+  mk('Taxa de default observada', fmtPct(c.taxa_default), 'por contrato, holdout', C.obs);
+  mk('PD média atribuída', fmtPct(c.instrumento.pd_media), 'modelo instrumento', C.instr);
+  mk('PD média atribuída', fmtPct(c.cliente.pd_media), 'modelo cliente', C.cli);
+  mk('Gini', fmtNum(c.instrumento.gini, 3), 'KS ' + fmtNum(c.instrumento.ks, 3) + ' · instrumento', C.instr);
+  mk('Gini', fmtNum(c.cliente.gini, 3), 'KS ' + fmtNum(c.cliente.ks, 3) + ' · cliente', C.cli);
+  mk('ECL / perda observada', fmtNum(c.instrumento.ecl / c.observado.perda, 2) + '× · ' + fmtNum(c.cliente.ecl / c.observado.perda, 2) + '×', 'instrumento · cliente');
+}
+
+function renderCenario() {
+  const c = cenario(); const C = COL();
+  tiles(c);
+  const nc = ['1', '2', '3', '4', '5'];
+  groupedBars(document.getElementById('c-ncontr'), {
+    title: 'PD média por número de contratos do cliente', sub: 'Contratos do holdout agrupados pelo tamanho do relacionamento do cliente.',
+    categories: nc, catLabel: 'Contratos do cliente', xLabel: 'Número de contratos do cliente', yFmt: v => fmtPct(v, 1),
+    series: [{ name: 'Modelo instrumento', color: C.instr, values: c.instrumento.pd_por_n_contratos }, { name: 'Modelo cliente', color: C.cli, values: c.cliente.pd_por_n_contratos }, { name: 'Observado', color: C.obs, values: c.observado.por_n_contratos }],
+    extra: i => fmtNum(c.observado.n_por_n_contratos[i]) + ' contratos', label: j => j === 1
+  });
+  groupedBars(document.getElementById('c-ecl'), {
+    title: 'ECL 12 meses contra perda observada', sub: 'Σ PD × LGD × EAD no holdout, LGD fixo por produto. Perda observada = Σ default × LGD × EAD.',
+    categories: ['ECL modelo instrumento', 'ECL modelo cliente', 'Perda observada'], catLabel: 'Abordagem', yFmt: v => fmtMi(v), barColors: [C.instr, C.cli, C.obs],
+    series: [{ name: 'Valor no holdout', color: C.instr, values: [c.instrumento.ecl, c.cliente.ecl, c.observado.perda] }], label: () => true
+  });
+  const calib = (id, m, color, nome) => {
+    const cal = m.calibracao; const ymax = Math.max(...cal.map(d => Math.max(d.previsto, d.observado))) * 1.15;
+    lineChart(document.getElementById(id), {
+      title: 'Calibração por decil · modelo ' + nome, sub: 'PD prevista média e taxa observada em cada decil de PD, holdout.',
+      x: cal.map(d => d.decil), xDomain: [1, 10], xTicks: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], xFmt: v => String(v), xTip: v => 'Decil ' + v, xLabel: 'Decil de PD prevista', yFmt: v => fmtPct(v, 0), yMax: ymax,
+      series: [{ name: 'Previsto', color, y: cal.map(d => d.previsto), markers: true }, { name: 'Observado', color: C.obs, y: cal.map(d => d.observado), markers: true }]
+    });
+  };
+  calib('c-calib-i', c.instrumento, C.instr, 'instrumento');
+  calib('c-calib-c', c.cliente, C.cli, 'cliente');
+  const grid = c.instrumento.roc.map(p => p[0]);
+  lineChart(document.getElementById('c-roc'), {
+    title: 'Curva ROC no holdout', sub: 'Avaliação por contrato contra o alvo da marcação escolhida.',
+    x: grid, xDomain: [0, 1], xFmt: v => fmtNum(v, 1), xTip: v => 'Taxa de falso positivo ' + fmtNum(v, 2), xLabel: 'Taxa de falso positivo', yFmt: v => fmtNum(v, 1), yMax: 1, diag: true,
+    series: [{ name: 'Instrumento · AUC ' + fmtNum(c.instrumento.auc, 3), color: C.instr, y: c.instrumento.roc.map(p => p[1]) }, { name: 'Cliente · AUC ' + fmtNum(c.cliente.auc, 3), color: C.cli, y: c.cliente.roc.map(p => p[1]) }]
+  });
+  const hx = c.hist_edges.slice(1, -1); const hxMid = hx.slice(0, -1).map((e, i) => Math.sqrt(e * hx[i + 1]));
+  lineChart(document.getElementById('c-hist'), {
+    title: 'Distribuição das PDs atribuídas aos contratos', sub: 'Fração dos contratos por faixa de PD, eixo logarítmico.',
+    x: hxMid, xDomain: [hx[0], hx[hx.length - 1]], xLog: true, xTicks: [0.005, 0.01, 0.02, 0.05, 0.1, 0.2, 0.5], xFmt: v => fmtPct(v, v < 0.01 ? 1 : 0), xTip: v => 'PD ≈ ' + fmtPct(v, 1), xLabel: 'PD atribuída', yFmt: v => fmtPct(v, 0),
+    series: [{ name: 'Instrumento', color: C.instr, y: c.hist.instrumento.slice(1, -1), area: true }, { name: 'Cliente', color: C.cli, y: c.hist.cliente.slice(1, -1), area: true }]
+  });
+  const prods = DADOS.meta.produtos; const pn = { consignado: 'Consignado', cdc_veiculo: 'CDC veículo', cartao: 'Cartão', credito_pessoal: 'Crédito pessoal' };
+  groupedBars(document.getElementById('c-prod'), {
+    title: 'PD média por produto', sub: 'O modelo cliente não distingue produto além do que o mix de contratos do cliente carrega.',
+    categories: prods.map(p => pn[p]), catLabel: 'Produto', yFmt: v => fmtPct(v, 1),
+    series: [{ name: 'Modelo instrumento', color: C.instr, values: prods.map(p => c.instrumento.pd_por_produto[p]) }, { name: 'Modelo cliente', color: C.cli, values: prods.map(p => c.cliente.pd_por_produto[p]) }, { name: 'Observado', color: C.obs, values: prods.map(p => c.observado.por_produto[p]) }]
+  });
+  const smax = Math.min(1, Math.max(...c.scatter.flatMap(p => [p[0], p[1]])) * 1.05);
+  scatter(document.getElementById('c-scatter'), {
+    title: 'PD cliente contra PD instrumento, contrato a contrato', sub: 'Amostra de 1.500 contratos do holdout. Tom mais escuro = cliente com mais contratos (1 a 5).',
+    points: c.scatter, xDomain: [0, smax], yDomain: [0, smax], xFmt: v => fmtPct(v, 0), yFmt: v => fmtPct(v, 0), xLabel: 'PD do modelo instrumento', yLabel: 'PD do modelo cliente', height: 340,
+    legend: [1, 2, 3, 4, 5].map((k, i) => ({ name: k + (k > 1 ? ' contratos' : ' contrato'), color: C.ramp[i], swatch: true }))
+  });
+  // texto dinâmico
+  document.getElementById('leitura-contrato').hidden = state.marc !== 'contrato';
+  document.getElementById('leitura-cliente').hidden = state.marc !== 'cliente';
+  const vals = {
+    'i.pd_media': fmtPct(c.instrumento.pd_media), 'c.pd_media': fmtPct(c.cliente.pd_media), taxa: fmtPct(c.taxa_default),
+    'c.pd4': fmtPct(c.cliente.pd_por_n_contratos[3]), obs4: fmtPct(c.observado.por_n_contratos[3]),
+    'i.gini': fmtNum(c.instrumento.gini, 3), 'c.gini': fmtNum(c.cliente.gini, 3),
+    'c.cal10p': fmtPct(c.cliente.calibracao[9].previsto), 'c.cal10o': fmtPct(c.cliente.calibracao[9].observado),
+    razao_ecl: fmtNum(c.cliente.ecl / c.observado.perda, 2), 'i.ecl': fmtMi(c.instrumento.ecl), 'c.ecl': fmtMi(c.cliente.ecl), obs_perda: fmtMi(c.observado.perda),
+    disp_razao: fmtNum(c.dispersao_intra_cliente.razao_mediana, 2) + '×'
+  };
+  document.querySelectorAll('[data-val]').forEach(e => { e.textContent = vals[e.dataset.val] ?? ''; });
+}
+
+function timeline() {
+  const root = document.getElementById('c-timeline'); root.innerHTML = '';
+  root.appendChild(h('h3', null, 'Um cliente, três contratos, três relógios'));
+  root.appendChild(h('div', 'sub', 'Origem do tempo no instrumento é a originação de cada contrato. No cliente, é o início do relacionamento. O mesmo evento (atraso no cartão no mês 20) é default aos 14 meses de idade do cartão, aos 20 meses de relacionamento e, com arrasto, também default do consignado que estava em dia.'));
+  const W = 1080, H = 250, l = 130, r = 30, pw = W - l - r, T = 36, top = 40; const xs = t => l + t / T * pw;
+  const svg = el('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': 'Linha do tempo de um cliente com três contratos' }, root);
+  const C = COL();
+  for (let t = 0; t <= T; t += 6) { el('line', { x1: xs(t), x2: xs(t), y1: top - 14, y2: top + 150, stroke: css('--grid') }, svg); const tx = el('text', { x: xs(t), y: top + 168, 'text-anchor': 'middle' }, svg); tx.textContent = 'mês ' + t; }
+  const rows = DADOS.sobrevivencia.exemplo_timeline; const cores = { ativo: C.instr, default: C.cli, liquidado: C.baixo };
+  rows.forEach((c, i) => {
+    const y = top + 16 + i * 34; const lb = el('text', { x: l - 12, y: y + 4, 'text-anchor': 'end', class: 'lbl' }, svg); lb.textContent = c.nome;
+    el('rect', { x: xs(c.inicio), y: y - 8, width: xs(c.fim) - xs(c.inicio), height: 16, rx: 4, fill: cores[c.status], opacity: c.status === 'liquidado' ? 0.6 : 0.9 }, svg);
+    const o = el('circle', { cx: xs(c.inicio), cy: y, r: 4, fill: css('--surface'), stroke: cores[c.status], 'stroke-width': 2 }, svg);
+    const s = el('text', { x: xs(c.inicio) + 6, y: y - 12 }, svg); s.textContent = c.status === 'default' ? 'originação · relógio do cartão começa' : c.status === 'liquidado' ? 'originação' : 'originação · relógio do cliente começa';
+    if (c.status === 'default') { el('line', { x1: xs(c.evento), x2: xs(c.evento), y1: top - 14, y2: top + 150, stroke: C.cli, 'stroke-width': 2 }, svg); const e = el('text', { x: xs(c.evento), y: top - 20, 'text-anchor': 'middle', class: 'lbl' }, svg); e.textContent = 'default do cartão: idade 14 meses, relacionamento 20 meses'; }
+    if (c.status === 'liquidado') { const e = el('text', { x: xs(c.fim) + 6, y: y + 4 }, svg); e.textContent = 'liquidado no mês ' + c.fim + ': censura no instrumento, não no cliente'; }
+  });
+  const y = top + 16 + 3 * 34; const lb = el('text', { x: l - 12, y: y + 4, 'text-anchor': 'end', class: 'lbl' }, svg); lb.textContent = 'Cliente';
+  el('rect', { x: xs(0), y: y - 8, width: xs(20) - xs(0), height: 16, rx: 4, fill: css('--ink-2'), opacity: 0.35 }, svg);
+  const e2 = el('text', { x: xs(20) + 6, y: y + 4 }, svg); e2.textContent = 'com arrasto, o cliente entra em default no mês 20 e arrasta o consignado';
+  const cap = el('text', { x: l, y: top + 200 }, svg); cap.textContent = 'Sem arrasto, o consignado seguiria em dia até o mês 36 e sairia como censura à direita no fim da janela.';
+}
+
+function renderSobrevivencia() {
+  const s = DADOS.sobrevivencia; const C = COL(); const T = s.horizonte; const meses = Array.from({ length: T }, (_, i) => i + 1);
+  const faixas = [['baixo', 'Risco baixo (score ≥ 700)', C.baixo], ['medio', 'Risco médio', C.medio], ['alto', 'Risco alto (score < 580)', C.alto]];
+  lineChart(document.getElementById('c-km'), {
+    title: 'PD acumulada do cliente por faixa de risco, Kaplan-Meier', sub: '1 − S(t) com intervalo de 95% (Greenwood). Censura na saída do último contrato ou no mês 36.',
+    x: meses, xDomain: [1, T], xTicks: [1, 6, 12, 18, 24, 30, 36], xFmt: v => String(v), xTip: v => 'Mês ' + v, xLabel: 'Meses desde o início do relacionamento', yFmt: v => fmtPct(v, 0), step: true,
+    series: faixas.map(([k, n, col]) => ({ name: n, color: col, y: s.km[k].s.map(v => 1 - v), band: { lo: s.km[k].hi.map(v => 1 - v), hi: s.km[k].lo.map(v => 1 - v) } }))
+  });
+  lineChart(document.getElementById('c-naive'), {
+    title: 'O que a censura ignorada esconde', sub: 'Carteira total. Contagem ingênua = defaults ÷ coorte inicial; Kaplan-Meier retira do denominador quem saiu sem default.',
+    x: meses, xDomain: [1, T], xTicks: [1, 6, 12, 18, 24, 30, 36], xFmt: v => String(v), xTip: v => 'Mês ' + v, xLabel: 'Meses desde o início do relacionamento', yFmt: v => fmtPct(v, 0), step: true,
+    series: [{ name: 'Kaplan-Meier, 1 − S(t)', color: C.instr, y: s.km.total.s.map(v => 1 - v) }, { name: 'Contagem ingênua', color: C.cli, y: s.naive.total, dash: true }]
+  });
+  const idade = Array.from({ length: T }, (_, i) => i);
+  lineChart(document.getElementById('c-hz'), {
+    title: 'Hazard mensal: idade do contrato contra tempo de relacionamento', sub: 'Mesmo painel, dois relógios. No cliente, contratos novos reiniciam a maturação e o hazard não cai como no instrumento.',
+    x: idade, xDomain: [0, T - 1], xTicks: [0, 6, 12, 18, 24, 30, 35], xFmt: v => String(v), xTip: v => 'Mês ' + v, xLabel: 'Meses (idade do contrato ou tempo de relacionamento)', yFmt: v => fmtPct(v, 1),
+    series: [{ name: 'Instrumento, por idade do contrato', color: C.instr, y: s.hazard_idade_contrato.map((v, i) => s.expostos_idade_contrato[i] < 300 ? null : v) }, { name: 'Cliente, por tempo de relacionamento', color: C.cli, y: s.hazard_tempo_cliente.map((v, i) => s.expostos_tempo_cliente[i] < 300 ? null : v) }]
+  });
+  lineChart(document.getElementById('c-hzmod'), {
+    title: 'Hazard discreto estimado por faixa, modelo pessoa-período', sub: 'Regressão logística com dummy de mês e faixa de risco. É a curva h(t) que, com S(t−1), gera a PD marginal do Stage 2.',
+    x: idade, xDomain: [0, T - 1], xTicks: [0, 6, 12, 18, 24, 30, 35], xFmt: v => String(v), xTip: v => 'Mês ' + v, xLabel: 'Meses desde o início do relacionamento', yFmt: v => fmtPct(v, 1),
+    series: faixas.map(([k, n, col]) => ({ name: n, color: col, y: s.hazard_modelo_faixa[k] }))
+  });
+  const sv = { n_clientes: fmtNum(s.n_clientes), n_contratos: fmtNum(s.n_contratos), pct_censura: fmtPct(s.pct_censura_antes_horizonte, 0),
+    gap12: fmtNum((s.pd12.total.km - s.pd12.total.naive) * 10000, 0) + ' pontos-base (' + fmtPct(s.pd12.total.naive) + ' contra ' + fmtPct(s.pd12.total.km) + ')',
+    gap36: fmtNum((s.pd36.total.km - s.pd36.total.naive) * 100, 1).replace('.', ',') + ' pontos percentuais (' + fmtPct(s.pd36.total.naive) + ' contra ' + fmtPct(s.pd36.total.km) + ')' };
+  document.querySelectorAll('[data-surv]').forEach(e => { e.textContent = sv[e.dataset.surv] ?? ''; });
+}
+
+function renderMeta() {
+  const m = DADOS.meta; document.querySelectorAll('[data-meta]').forEach(e => {
+    const k = e.dataset.meta; if (k === 'dist') { e.textContent = Object.entries(m.dist_n_contratos).map(([k, v]) => k + ' contrato' + (k > 1 ? 's' : '') + ' ' + fmtPct(v / m.n_clientes, 0)).join(', '); } else e.textContent = fmtNum(m[k]);
+  });
+}
+
+function bindSeg(id, key, parse) {
+  const seg = document.getElementById(id);
+  seg.querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
+    seg.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', 'false')); b.setAttribute('aria-pressed', 'true');
+    state[key] = parse(b.dataset.v); renderCenario();
+  }));
+}
+bindSeg('seg-marc', 'marc', v => v); bindSeg('seg-rho', 'rho', v => parseFloat(v));
+renderMeta(); renderCenario(); timeline(); renderSobrevivencia();
+const mq = window.matchMedia('(prefers-color-scheme: dark)'); mq.addEventListener('change', () => { renderCenario(); timeline(); renderSobrevivencia(); });
+new MutationObserver(() => { renderCenario(); timeline(); renderSobrevivencia(); }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+</script>
