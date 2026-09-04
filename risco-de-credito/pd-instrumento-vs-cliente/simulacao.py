@@ -156,13 +156,13 @@ class Cenario:
     rho: float
 
 
-def rodar_cenario(cen: Cenario, contratos_base: pd.DataFrame, rng: np.random.Generator) -> dict:
+def rodar_cenario(
+    cen: Cenario, contratos_base: pd.DataFrame, rng: np.random.Generator, teste_ids: set[int], ids_exemplo: list[int]
+) -> dict:
     c = marcar_default(contratos_base, cen.rho, rng)
     alvo = "default_contrato" if cen.marcacao == "contrato" else "default_cliente"
 
     # split por cliente: contratos do mesmo cliente nunca ficam em treino e teste ao mesmo tempo
-    ids = c.id_cliente.unique()
-    teste_ids = set(rng.choice(ids, size=int(0.4 * len(ids)), replace=False))
     c["teste"] = c.id_cliente.isin(teste_ids)
 
     # modelo a nível instrumento
@@ -224,6 +224,35 @@ def rodar_cenario(cen: Cenario, contratos_base: pd.DataFrame, rng: np.random.Gen
         [round(float(a), 4), round(float(b), 4), int(k)]
         for a, b, k in zip(amostra.pd_instrumento, amostra.pd_cliente, amostra.n_contratos)
     ]
+    # clientes de exemplo (4 ou 5 contratos, holdout) para a tabela de PD por contrato e por cliente
+    res["exemplos"] = []
+    for cid in ids_exemplo:
+        g = c[c.id_cliente == cid].sort_values("idade_contrato", ascending=False)
+        if g.default_cliente.iloc[0] == 0:
+            continue
+        res["exemplos"].append(
+            {
+                "id": int(cid),
+                "score": int(round(g.score.iloc[0])),
+                "renda": round(float(g.renda.iloc[0])),
+                "default_cliente": int(g.default_cliente.iloc[0]),
+                "pd_cliente": round(float(g.pd_cliente.iloc[0]), 4),
+                "contratos": [
+                    {
+                        "produto": r.produto,
+                        "saldo": round(float(r.saldo)),
+                        "prazo": int(r.prazo),
+                        "parcela_renda": round(float(r.parcela_renda), 3),
+                        "idade": int(r.idade_contrato),
+                        "default_contrato": int(r.default_contrato),
+                        "default_arrasto": int(r.default_cliente),
+                        "pd_instrumento": round(float(r.pd_instrumento), 4),
+                        "lgd": float(r.lgd),
+                    }
+                    for r in g.itertuples()
+                ],
+            }
+        )
     return res
 
 
@@ -383,10 +412,17 @@ def exemplo_timeline(rng: np.random.Generator) -> list[dict]:
 def main() -> None:
     rng = np.random.default_rng(SEED)
     clientes, contratos = gerar_carteira(rng)
+    rng_split = np.random.default_rng(SEED + 7)
+    ids = clientes.id_cliente.values
+    teste_ids = set(rng_split.choice(ids, size=int(0.4 * len(ids)), replace=False).tolist())
+    candidatos = clientes[(clientes.n_contratos >= 4) & clientes.id_cliente.isin(teste_ids)].id_cliente.values
+    ids_exemplo = rng_split.choice(candidatos, size=min(250, len(candidatos)), replace=False).tolist()
     cenarios = []
     for marcacao in ["contrato", "cliente"]:
         for rho in RHOS:
-            cenarios.append(rodar_cenario(Cenario(marcacao, rho), contratos, np.random.default_rng(SEED + int(rho * 100))))
+            cenarios.append(
+                rodar_cenario(Cenario(marcacao, rho), contratos, np.random.default_rng(SEED + int(rho * 100)), teste_ids, ids_exemplo)
+            )
     sobrevivencia = simular_painel(np.random.default_rng(SEED + 1))
     saida = {
         "meta": {

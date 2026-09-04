@@ -28,12 +28,17 @@ python build_html.py     # injeta o JSON no template.html e gera o HTML final
 
 ## Principais conclusões
 
-- Com default marcado no contrato, o modelo cliente superestima a PD de cada contrato e a
+- Com arrasto (a regra da 4.966 para caracterização por contraparte, visão padrão da página), as
+  duas abordagens convergem no nível e o modelo cliente ganha um pouco de Gini; a diferença que
+  resta é de coerência: o modelo instrumento dá PDs diferentes para contratos que respondem ao
+  mesmo evento.
+- Sem arrasto (exceção de varejo), o modelo cliente superestima a PD de cada contrato e a
   superestimação cresce com o número de contratos do cliente (mede "algum contrato falha" e cola
   o número em todos). ECL sai mais que o dobro da perda observada.
-- Com arrasto, as duas abordagens convergem no nível e o modelo cliente ganha um pouco de Gini;
-  a diferença que resta é de coerência: o modelo instrumento dá PDs diferentes para contratos que
-  respondem ao mesmo evento.
+- O arrasto aumenta a ECL por mudar o evento, não por ser "modelo de cliente": com a definição
+  fixa, as duas granularidades entregam a mesma ECL agregada.
+- A página inclui uma tabela de cliente sorteado (4 ou 5 contratos, em default) com PD por
+  contrato e por cliente, para ver a dispersão intra-cliente do modelo instrumento.
 - Partição treino/teste sempre por cliente; sem isso o Gini do modelo instrumento sai inflado.
 - Ignorar censura na PD lifetime de cliente subestima a PD, e a censura por liquidação é
   informativa (quem liquida tende a ser o de menor risco), o que Kaplan-Meier não corrige.

@@ -144,6 +144,21 @@ code { font-family: var(--mono); font-size: 0.9em; background: var(--surface-2);
 .chart table th:first-child, .chart table td:first-child { text-align: left; }
 .chart .tblwrap { overflow-x: auto; }
 .chart.fade svg { opacity: 0.4; transition: opacity 0.15s; }
+.chart .head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 16px; }
+.btn { font: inherit; font-size: 13px; padding: 6px 12px; border: 1px solid var(--axis); border-radius: 8px; background: var(--surface); color: var(--ink); cursor: pointer; }
+.btn:hover { background: var(--surface-2); }
+.btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.cli-meta { display: flex; flex-wrap: wrap; gap: 6px 22px; font-size: 13px; color: var(--ink-2); }
+.cli-meta b { color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
+table.cli { border-collapse: collapse; font-size: 13px; width: 100%; font-variant-numeric: tabular-nums; }
+table.cli th, table.cli td { padding: 7px 10px 7px 0; text-align: right; border-bottom: 1px solid var(--grid); white-space: nowrap; }
+table.cli th { font-weight: 500; color: var(--ink-2); font-size: 12px; }
+table.cli th:first-child, table.cli td:first-child { text-align: left; }
+table.cli tr.tot td { font-weight: 600; border-bottom: 0; }
+table.cli .pill { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 12px; background: var(--surface-2); color: var(--ink-2); }
+table.cli .pill.on { background: var(--s-cli); color: #fff; }
+table.cli .pdbar { display: inline-flex; align-items: center; gap: 8px; justify-content: flex-end; }
+table.cli .pdbar i { display: inline-block; height: 8px; border-radius: 2px; }
 
 /* tabela de desenho */
 table.spec { border-collapse: collapse; font-size: 14px; width: 100%; max-width: 760px; }
@@ -168,7 +183,7 @@ footer { margin-top: 56px; padding-top: 20px; border-top: 1px solid var(--border
 <header class="top">
   <div class="eyebrow">Simulação · PD 12 meses · CMN 4.966 e IFRS 9</div>
   <h1>PD por instrumento ou por cliente</h1>
-  <p class="lede">Mesma carteira, mesmas variáveis, duas granularidades de modelo. A pergunta que importa não é "qual tem Gini maior", é qual delas mede o evento que a definição de default marca.</p>
+  <p class="lede">Mesma carteira, mesmas variáveis, duas granularidades de modelo. Na visão padrão o default arrasta os demais instrumentos do cliente, que é a regra da 4.966; a visão sem arrasto fica disponível como exceção de varejo. A pergunta que importa não é "qual tem Gini maior", é qual delas mede o evento que a marcação define.</p>
   <div class="meta">
     <span>clientes <span class="num" data-meta="n_clientes"></span></span>
     <span>contratos <span class="num" data-meta="n_contratos"></span></span>
@@ -185,10 +200,10 @@ footer { margin-top: 56px; padding-top: 20px; border-top: 1px solid var(--border
   </div>
   <div class="prose">
     <p>Cada cliente carrega um fator latente de risco <code>Z</code> que os contratos dele compartilham. O parâmetro <code>ρ</code> controla quanto do risco residual de um contrato vem do cliente (compartilhado) e quanto é idiossincrático do contrato. O score observado é uma medida ruidosa de <code>Z</code>.</p>
-    <p>A definição de default é a variável que muda tudo. Na <strong>marcação no contrato</strong>, cada contrato entra em default por conta própria. Na <strong>marcação no cliente</strong> (arrasto), o atraso em um contrato contamina todos os demais do mesmo cliente, e o alvo de cada contrato passa a ser "o cliente defaultou".</p>
+    <p>A definição de default é a variável que muda tudo. <strong>Com arrasto</strong>, o atraso em um contrato caracteriza todos os demais do mesmo cliente, e o alvo de cada contrato, inclusive no modelo por contrato, passa a ser "o cliente entrou em default". É a regra da 4.966 para a caracterização de ativo problemático por contraparte. <strong>Sem arrasto</strong>, cada contrato entra em default por conta própria, o que a norma admite como exceção para varejo, com critério documentado.</p>
   </div>
   <div class="tblwrap"><table class="spec">
-    <tr><th>Modelo instrumento</th><td>Uma linha por contrato. Features do contrato (produto, prazo, parcela/renda, idade do contrato) mais features do cliente (score, renda, número de contratos). Alvo: default do contrato sob a marcação escolhida.</td></tr>
+    <tr><th>Modelo instrumento</th><td>Uma linha por contrato. Features do contrato (produto, prazo, parcela/renda, idade do contrato) mais features do cliente (score, renda, número de contratos). Alvo: default do contrato, contaminado pelo arrasto na visão padrão.</td></tr>
     <tr><th>Modelo cliente</th><td>Uma linha por cliente. Features do cliente mais agregados dos contratos (saldo total, soma parcela/renda, prazo máximo, flags de produto). Alvo: algum contrato do cliente em default. A PD do cliente é atribuída a todos os contratos dele.</td></tr>
     <tr><th>Avaliação</th><td>Sempre a nível contrato, no holdout, contra o alvo da marcação. Gini, KS, Brier, calibração por decil, PD média atribuída e ECL = Σ PD × LGD × EAD.</td></tr>
     <tr><th>Partição</th><td>Treino e teste separados por cliente. Se contratos do mesmo cliente caíssem dos dois lados, o modelo instrumento memorizaria o fator do cliente e o Gini de teste sairia inflado.</td></tr>
@@ -203,10 +218,10 @@ footer { margin-top: 56px; padding-top: 20px; border-top: 1px solid var(--border
     <p>Os filtros valem para tudo abaixo: tiles, gráficos e o texto de leitura.</p>
   </div>
   <div class="filters" role="group" aria-label="Filtros da simulação">
-    <div class="filter"><span class="lbl">Marcação do default</span>
+    <div class="filter"><span class="lbl">Arrasto entre instrumentos</span>
       <div class="seg" id="seg-marc">
-        <button type="button" data-v="contrato" aria-pressed="true">No contrato</button>
-        <button type="button" data-v="cliente" aria-pressed="false">No cliente (arrasto)</button>
+        <button type="button" data-v="cliente" aria-pressed="true">Com arrasto (regra)</button>
+        <button type="button" data-v="contrato" aria-pressed="false">Sem arrasto (exceção de varejo)</button>
       </div></div>
     <div class="filter"><span class="lbl">Risco compartilhado ρ</span>
       <div class="seg" id="seg-rho">
@@ -229,18 +244,20 @@ footer { margin-top: 56px; padding-top: 20px; border-top: 1px solid var(--border
     <div class="chart" id="c-scatter"></div>
   </div>
 
+  <div class="chart" id="c-exemplo"></div>
+
   <div class="prose" id="leitura">
     <h3>Leitura</h3>
     <div id="leitura-contrato">
-      <p>Com o default marcado no contrato, o modelo instrumento acerta o nível: PD média de <span class="dyn" data-val="i.pd_media"></span> contra taxa observada de <span class="dyn" data-val="taxa"></span>. O modelo cliente atribui <span class="dyn" data-val="c.pd_media"></span> a cada contrato, porque mede a probabilidade de <em>algum</em> contrato do cliente falhar e depois cola esse número em todos eles. Para um cliente com 4 contratos, a PD atribuída chega a <span class="dyn" data-val="c.pd4"></span> enquanto a taxa observada por contrato fica em <span class="dyn" data-val="obs4"></span>.</p>
+      <p>Sem arrasto (a exceção de varejo), o modelo instrumento acerta o nível: PD média de <span class="dyn" data-val="i.pd_media"></span> contra taxa observada de <span class="dyn" data-val="taxa"></span>. O modelo cliente atribui <span class="dyn" data-val="c.pd_media"></span> a cada contrato, porque mede a probabilidade de <em>algum</em> contrato do cliente falhar e depois cola esse número em todos eles. Para um cliente com 4 contratos, a PD atribuída chega a <span class="dyn" data-val="c.pd4"></span> enquanto a taxa observada por contrato fica em <span class="dyn" data-val="obs4"></span>.</p>
       <p>Não é problema de discriminação, é de alvo. O Gini cai (<span class="dyn" data-val="i.gini"></span> contra <span class="dyn" data-val="c.gini"></span>) porque a PD do cliente varia com o número de contratos e não com o risco de cada contrato, mas o dano principal é de calibração: o último decil do modelo cliente prevê <span class="dyn" data-val="c.cal10p"></span> e observa <span class="dyn" data-val="c.cal10o"></span>. A ECL sai <span class="dyn" data-val="razao_ecl"></span> vezes a perda observada.</p>
     </div>
     <div id="leitura-cliente" hidden>
-      <p>Com arrasto, o alvo do contrato passa a ser o default do cliente. As duas abordagens convergem no nível (PD média <span class="dyn" data-val="i.pd_media"></span> contra <span class="dyn" data-val="c.pd_media"></span>, taxa observada <span class="dyn" data-val="taxa"></span>) e na ECL (<span class="dyn" data-val="i.ecl"></span> contra <span class="dyn" data-val="c.ecl"></span>, perda observada <span class="dyn" data-val="obs_perda"></span>). O modelo cliente ganha um pouco de Gini (<span class="dyn" data-val="c.gini"></span> contra <span class="dyn" data-val="i.gini"></span>) porque enxerga os agregados do cliente que o modelo instrumento só vê pela metade.</p>
+      <p>Com arrasto, o alvo do contrato é o default do cliente, e isso vale também para o modelo por contrato. As duas abordagens convergem no nível (PD média <span class="dyn" data-val="i.pd_media"></span> contra <span class="dyn" data-val="c.pd_media"></span>, taxa observada <span class="dyn" data-val="taxa"></span>) e na ECL (<span class="dyn" data-val="i.ecl"></span> contra <span class="dyn" data-val="c.ecl"></span>, perda observada <span class="dyn" data-val="obs_perda"></span>). O modelo cliente ganha um pouco de Gini (<span class="dyn" data-val="c.gini"></span> contra <span class="dyn" data-val="i.gini"></span>) porque enxerga os agregados do cliente que o modelo instrumento só vê pela metade.</p>
       <p>A diferença que sobra é de coerência interna. O modelo instrumento continua dando PDs diferentes para contratos do mesmo cliente que respondem ao mesmo evento: a razão mediana entre a maior e a menor PD dentro de um cliente com 2 ou mais contratos é <span class="dyn" data-val="disp_razao"></span>. Na validação isso aparece como "por que o consignado deste cliente tem PD de 3% e o cartão dele tem 9%, se o default é o mesmo?".</p>
     </div>
     <div class="note">
-      <p>A comparação só faz sentido dentro de uma marcação. Comparar Gini do modelo cliente sob arrasto com Gini do modelo instrumento sem arrasto é comparar dois eventos diferentes.</p>
+      <p>A comparação só faz sentido dentro de uma marcação. Comparar Gini do modelo cliente com arrasto com Gini do modelo instrumento sem arrasto é comparar dois eventos diferentes. E o arrasto não aumenta a ECL por ser "modelo de cliente": aumenta porque muda o evento. Com a definição fixa, as duas granularidades entregam a mesma ECL agregada e só a redistribuem entre contratos.</p>
     </div>
   </div>
 </section>
@@ -280,7 +297,7 @@ footer { margin-top: 56px; padding-top: 20px; border-top: 1px solid var(--border
   </div>
 
   <div class="note warn">
-    <p>Ponto regulatório para conferir no texto vigente da 4.966 e na regulamentação complementar do Banco Central: a unidade em que o ativo problemático é caracterizado e a regra de contaminação entre operações do mesmo cliente. O que a norma exige em substância é que a marcação seja consistente; a granularidade do modelo tem que seguir essa marcação, não o contrário.</p>
+    <p>Leitura regulatória, em substância: a 4.966 caracteriza o ativo problemático por contraparte, ou seja, um instrumento problemático arrasta os demais do mesmo cliente, e admite a caracterização por instrumento como exceção para varejo, com critério documentado. A redação exata, a delimitação de varejo e as alterações posteriores precisam ser conferidas no texto vigente. A consequência para o modelo é direta: a granularidade segue a unidade em que a instituição caracteriza o ativo problemático, não o contrário. Duas decorrências que a simulação não cobre: a cura sob arrasto é do cliente (todos os instrumentos cumprem a quarentena), e a LGD do contrato que entrou em default só por contaminação tende a ser menor, então estimar LGD sem separar o caminho de entrada superestima a ECL.</p>
   </div>
 </section>
 
@@ -291,8 +308,8 @@ footer { margin-top: 56px; padding-top: 20px; border-top: 1px solid var(--border
   </div>
   <div class="prose">
     <ul>
-      <li><strong>Default marcado no contrato, sem arrasto:</strong> modelo a nível instrumento. O modelo cliente superestima a PD de todo contrato de cliente com mais de uma operação, e a superestimação cresce com o número de contratos.</li>
-      <li><strong>Default marcado no cliente, com arrasto:</strong> modelo a nível cliente com PD replicada nos contratos. Mesmo nível, Gini um pouco melhor e uma única PD por evento. Se a exigência for PD por contrato, derive segmentando a PD do cliente por produto na calibração, não treinando um modelo por contrato contra um alvo de cliente.</li>
+      <li><strong>Com arrasto (regra):</strong> modelo a nível cliente com PD replicada nos contratos. Mesmo nível, Gini um pouco melhor e uma única PD por evento. Se a exigência for PD por contrato, derive segmentando a PD do cliente por produto na calibração, não treinando um modelo por contrato contra um alvo de cliente.</li>
+      <li><strong>Sem arrasto (exceção de varejo, documentada):</strong> modelo a nível instrumento. O modelo cliente superestima a PD de todo contrato de cliente com mais de uma operação, e a superestimação cresce com o número de contratos.</li>
       <li><strong>Modelo híbrido</strong> (PD do cliente como feature do modelo de contrato) é aceitável só se o alvo do modelo de contrato for o default do contrato. Caso contrário, é o modelo cliente com passos a mais.</li>
       <li><strong>Sempre:</strong> partição por cliente, avaliação na granularidade em que a ECL é calculada, e documentação da unidade de marcação do default antes da escolha de granularidade.</li>
     </ul>
@@ -438,7 +455,7 @@ function scatter(root, o) {
 }
 
 // ---------------------------------------------------------------- render
-const state = { marc: 'contrato', rho: 0.5 };
+const state = { marc: 'cliente', rho: 0.5 };
 function cenario() { return DADOS.cenarios.find(c => c.marcacao === state.marc && Math.abs(c.rho - state.rho) < 1e-9); }
 function get(obj, path) { return path.split('.').reduce((a, k) => a[k], obj); }
 
@@ -502,6 +519,7 @@ function renderCenario() {
     points: c.scatter, xDomain: [0, smax], yDomain: [0, smax], xFmt: v => fmtPct(v, 0), yFmt: v => fmtPct(v, 0), xLabel: 'PD do modelo instrumento', yLabel: 'PD do modelo cliente', height: 340,
     legend: [1, 2, 3, 4, 5].map((k, i) => ({ name: k + (k > 1 ? ' contratos' : ' contrato'), color: C.ramp[i], swatch: true }))
   });
+  renderExemplo(c);
   // texto dinâmico
   document.getElementById('leitura-contrato').hidden = state.marc !== 'contrato';
   document.getElementById('leitura-cliente').hidden = state.marc !== 'cliente';
@@ -514,6 +532,51 @@ function renderCenario() {
     disp_razao: fmtNum(c.dispersao_intra_cliente.razao_mediana, 2) + '×'
   };
   document.querySelectorAll('[data-val]').forEach(e => { e.textContent = vals[e.dataset.val] ?? ''; });
+}
+
+const exemploState = { id: null };
+const plural = n => n + (n === 1 ? ' contrato' : ' contratos');
+function renderExemplo(c) {
+  const C = COL(); const root = document.getElementById('c-exemplo'); root.innerHTML = '';
+  const lista = c.exemplos; if (!lista.length) return;
+  let ex = lista.find(e => e.id === exemploState.id);
+  if (!ex) { ex = lista[Math.floor(Math.random() * lista.length)]; exemploState.id = ex.id; }
+  const head = h('div', 'head'); const tl = h('div'); tl.appendChild(h('h3', null, 'Um cliente em default, contrato a contrato'));
+  tl.appendChild(h('div', 'sub', 'Cliente do holdout com 4 ou 5 contratos e default marcado. Sorteado entre ' + lista.length + ' clientes nessa condição para os filtros atuais; mudar os filtros mantém o cliente quando ele continua em default.'));
+  const btn = h('button', 'btn', 'Sortear outro cliente'); btn.type = 'button';
+  btn.addEventListener('click', () => { const outros = lista.filter(e => e.id !== ex.id); const n = outros[Math.floor(Math.random() * outros.length)] || ex; exemploState.id = n.id; renderExemplo(c); });
+  head.append(tl, btn); root.appendChild(head);
+  const meta = h('div', 'cli-meta');
+  const mk = (l, v) => { const d = h('span'); d.append(document.createTextNode(l + ' '), h('b', null, v)); meta.appendChild(d); };
+  mk('Cliente', '#' + ex.id); mk('Score', fmtNum(ex.score)); mk('Renda mensal', 'R$ ' + fmtNum(ex.renda)); mk('Contratos', String(ex.contratos.length));
+  mk('Atrasaram por conta própria', ex.contratos.filter(k => k.default_contrato).length + ' de ' + ex.contratos.length);
+  mk('PD do modelo cliente', fmtPct(ex.pd_cliente)); root.appendChild(meta);
+  const pn = { consignado: 'Consignado', cdc_veiculo: 'CDC veículo', cartao: 'Cartão', credito_pessoal: 'Crédito pessoal' };
+  const wrap = h('div', 'tblwrap'); const t = document.createElement('table'); t.className = 'cli';
+  const hdr = ['Produto', 'Saldo', 'Prazo', 'Parc./renda', 'Idade', 'Atraso próprio', 'Com arrasto', 'PD instrumento', 'PD cliente', 'LGD'];
+  const trh = document.createElement('tr'); hdr.forEach(x => { const th = document.createElement('th'); th.textContent = x; trh.appendChild(th); }); t.appendChild(trh);
+  const maxpd = Math.max(ex.pd_cliente, ...ex.contratos.map(k => k.pd_instrumento));
+  const bar = (v, col) => { const d = h('span', 'pdbar'); const i = h('i'); i.style.width = Math.max(2, 48 * v / maxpd) + 'px'; i.style.background = col; d.append(i, document.createTextNode(fmtPct(v))); return d; };
+  const pill = on => { const p = h('span', 'pill' + (on ? ' on' : ''), on ? 'sim' : 'não'); return p; };
+  ex.contratos.forEach(k => {
+    const tr = document.createElement('tr');
+    const cells = [pn[k.produto], 'R$ ' + fmtNum(k.saldo), k.prazo + ' m', fmtPct(k.parcela_renda, 0), k.idade + ' m', pill(k.default_contrato), pill(k.default_arrasto), bar(k.pd_instrumento, C.instr), bar(ex.pd_cliente, C.cli), fmtPct(k.lgd, 0)];
+    cells.forEach(v => { const td = document.createElement('td'); if (typeof v === 'string') td.textContent = v; else td.appendChild(v); tr.appendChild(td); });
+    t.appendChild(tr);
+  });
+  const ead = ex.contratos.reduce((a, k) => a + k.saldo, 0);
+  const ecl_i = ex.contratos.reduce((a, k) => a + k.pd_instrumento * k.lgd * k.saldo, 0), ecl_c = ex.contratos.reduce((a, k) => a + ex.pd_cliente * k.lgd * k.saldo, 0);
+  const pdi_pond = ex.contratos.reduce((a, k) => a + k.pd_instrumento * k.saldo, 0) / ead;
+  const pAlgum = 1 - ex.contratos.reduce((a, k) => a * (1 - k.pd_instrumento), 1);
+  const trt = document.createElement('tr'); trt.className = 'tot';
+  [['Total / média ponderada por saldo'], ['R$ ' + fmtNum(ead)], [''], [''], [''], [plural(ex.contratos.filter(k => k.default_contrato).length)], [plural(ex.contratos.filter(k => k.default_arrasto).length)], [fmtPct(pdi_pond)], [fmtPct(ex.pd_cliente)], ['']].forEach(([v]) => { const td = document.createElement('td'); td.textContent = v; trt.appendChild(td); });
+  t.appendChild(trt); wrap.appendChild(t); root.appendChild(wrap);
+  const nota = h('div', 'sub');
+  nota.textContent = (state.marc === 'cliente'
+    ? 'Com arrasto, os dois modelos respondem ao mesmo evento, mas o modelo instrumento espalha PDs diferentes pelos contratos (de ' + fmtPct(Math.min(...ex.contratos.map(k => k.pd_instrumento))) + ' a ' + fmtPct(Math.max(...ex.contratos.map(k => k.pd_instrumento))) + ') enquanto o modelo cliente dá uma só. '
+    : 'Sem arrasto, o modelo instrumento estima o atraso próprio de cada contrato; a PD do modelo cliente é a chance de algum deles atrasar e por isso fica acima de todas. Sob independência, 1 − Π(1 − PD instrumento) daria ' + fmtPct(pAlgum) + '. ')
+    + 'ECL 12 meses deste cliente: R$ ' + fmtNum(ecl_i) + ' pelo modelo instrumento e R$ ' + fmtNum(ecl_c) + ' pelo modelo cliente.';
+  root.appendChild(nota);
 }
 
 function timeline() {
